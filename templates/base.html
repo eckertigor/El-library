@@ -20,14 +20,20 @@
 
   <body>
     <nav class="navbar navbar-default navbar-fixed-top navbar-mes navbar-custom">
-      <div class="container navbar-container container-fluid container-custom">
+      <div class="container navbar-container container-fluid container-navbar">
         <div class="collapse navbar-collapse item-custom-nav">
           <ul class="nav navbar-nav navbar-custom">
             <li class="item-custom"><a class="item roboto-font" href="/">Каталог</a></li>
             <li class="item-custom"><a class="item roboto-font" href="/">Поиск</a></li>
             <li class="item-custom"><a class="item roboto-font" href="/">Популярные</a></li>
             <li class="item-custom"><a class="item roboto-font  add-material" href="/">Добавление материала</a></li>
-            <li class="item-custom"><a class="item roboto-font" href="/">Личный кабинет</a></li>
+            <!-- <li class="item-custom"><a class="item roboto-font" href="/">Личный кабинет</a></li> -->
+            <li class="item-reg">
+            <a class="item reg" href="/">
+            <span class="glyphicon glyphicon-log-in"></span> Вход</a></li>
+              <li class="item-reg">
+                <a class="item reg signup" href="/">
+            <span class="glyphicon glyphicon-user"></span> Регистрация</a></li>
             <!-- <ul class="item-custom">
             <li><img class="navbar-right img-rounded navbar-img avatar" src="/uploads/"></li>
             <a href="/profile" class="navbar-link navbar-user roboto-font-user">Профиль Igor</a><br>
@@ -39,7 +45,7 @@
       </div>
     </nav>
 
-    <div class="container">
+    <div class="container container-custom">
       <div class="row">
         <div class="col-md-12 col-sm-12">
           {%block content %} {% endblock %}
