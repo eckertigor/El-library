@@ -27,19 +27,16 @@
             <li class="item-custom"><a class="item roboto-font" href="/">Поиск</a></li>
             <li class="item-custom"><a class="item roboto-font" href="/">Популярные</a></li>
             <li class="item-custom"><a class="item roboto-font  add-material" href="/">Добавление материала</a></li>
-            <!-- <li class="item-custom"><a class="item roboto-font" href="/">Личный кабинет</a></li> -->
-            <li class="item-reg">
-            <a class="item reg" href="/">
-            <span class="glyphicon glyphicon-log-in"></span> Вход</a></li>
+            {% if user.is_authenticated %}
+              <li class="item-custom"><a class="item roboto-font" href="/">Личный кабинет</a></li>
+            {% else %}
               <li class="item-reg">
-                <a class="item reg signup" href="/">
-            <span class="glyphicon glyphicon-user"></span> Регистрация</a></li>
-            <!-- <ul class="item-custom">
-            <li><img class="navbar-right img-rounded navbar-img avatar" src="/uploads/"></li>
-            <a href="/profile" class="navbar-link navbar-user roboto-font-user">Профиль Igor</a><br>
-            <a href="/logout/" class="navbar-link navbar-logout roboto-font-user">
-            <span class="glyphicon glyphicon-log-out"></span> Logout </a>
-            </ul> -->
+              <a class="item reg" href="/">
+              <span class="glyphicon glyphicon-log-in"></span> Вход</a></li>
+                <li class="item-reg">
+                  <a class="item reg signup" href="/">
+              <span class="glyphicon glyphicon-user"></span> Регистрация</a></li>
+            {% endif %}
           </ul>
         </div>
       </div>

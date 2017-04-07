@@ -1,6 +1,9 @@
 # -*- coding: utf-8
 from django.shortcuts import render
-from el_library.forms import UserForm
+from el_library.forms import UserForm, LoginForm
+from django.contrib import auth
+from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect, Http404, JsonResponse
 
 
 def index(request):
@@ -42,3 +45,30 @@ def signup(request):
     else:
         form = UserForm()
         return render(request, 'signup.html', { 'form' : form })
+
+def login(request):
+    if request.user.is_authenticated():
+        return redirect('/')
+    if request.method == 'POST':
+        response_data = {}
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        try:
+            userByEmail = User.objects.get(email=email)
+        except User.DoesNotExist:
+            response_data['error'] = u'Пользователь с таким email не найден'
+            return JsonResponse(response_data)
+        user = auth.authenticate(username=userByEmail.username, password=password)
+        if user is not None:
+            auth.login(request, user)
+            # profile = Profile.objects.get(nickname=userByEmail.username)
+            # response_data['avatar'] = profile.avatar.name[2:]
+            response_data['result'] = u'Вы успешно авторизировались'
+            response_data['user'] = userByEmail.username
+            return JsonResponse(response_data)
+        else:
+            response_data['error'] = u'Проверьте правильность введенных данных'
+            return JsonResponse(response_data)
+    else:
+        form = LoginForm()
+        return render(request, 'login.html', { 'form' : form })
