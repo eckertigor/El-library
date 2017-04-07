@@ -21,9 +21,6 @@ class UserForm(forms.Form):
 		required=True,
 		widget=forms.PasswordInput(attrs={'class': 'form-control'})
 	)
-	avatar = forms.FileField(
-		required=True, label=u'Загрузите изображение'
-	)
 
 
 class ProfileForm(forms.Form):

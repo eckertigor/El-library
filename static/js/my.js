@@ -23,16 +23,6 @@
          }
     });
 
-function disableCheckBoxes(bestAnswer) {
-    var a = bestAnswer
-    if (a != 0) {
-       $(':checkbox').not('#best-answer'+a).attr('disabled', true);
-       $('#ans'+a).css("border", "4px solid green");
-       $('#ans-block'+a).css("margin-left", "-2px");
-       $('#ans'+a).css({"margin-top":"-2px", "margin-bottom":"13px"});
-    }
-}
-
 $(document).ready(function() {
     $('#btn-sbmt').click(function(e) {
           // if ($('#reg-form').bootstrapValidator('validate').has('.has-error').length) {

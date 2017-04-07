@@ -1,6 +1,7 @@
 # -*- coding: utf-8
 from django.shortcuts import render
 from el_library.forms import UserForm, LoginForm
+from el_library.models import Profile
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect, Http404, JsonResponse
@@ -33,8 +34,7 @@ def signup(request):
                 response_data['error'] = u'Пользователь с таким email уже существует'
                 return JsonResponse(response_data)
             u = User.objects.create_user(username, email, password)
-            p = Profile.objects.create(nickname=username,
-                                avatar=request.FILES['avatar'], fio=fio)
+            p = Profile.objects.create(nickname=username, fio=fio)
             p.save()
             response_data['result'] = u'Вы успешно зарегестрировались'
             response_data['button'] = u'Войти?'
@@ -44,7 +44,8 @@ def signup(request):
             return JsonResponse(response_data)
     else:
         form = UserForm()
-        return render(request, 'signup.html', { 'form' : form })
+        return render(request, 'signup.html', {'form': form})
+
 
 def login(request):
     if request.user.is_authenticated():
@@ -71,4 +72,9 @@ def login(request):
             return JsonResponse(response_data)
     else:
         form = LoginForm()
-        return render(request, 'login.html', { 'form' : form })
+        return render(request, 'login.html', {'form': form})
+
+
+def logout(request):
+    auth.logout(request)
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
