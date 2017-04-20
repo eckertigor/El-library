@@ -8,14 +8,20 @@
     <meta name="author" content="">
     <title>Библиотека информационных ресурсов</title>
     <script src="/js/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.js" type="text/javascript" charset="utf-8"></script>
     <script src="/js/my.js"></script>
+    <script src="/js/bootstrap-treeview.js"></script>
     <script src="../../js/bootstrap.js" type="text/javascript"></script>
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/main.css" rel="stylesheet">
     <link rel="icon" href="../../favicon.ico">
     <link href='/css/roboto.css' rel='stylesheet' type='text/css'>
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/flick/jquery-ui.css">
+    <link href="/css/jquery.tagit.css" rel="stylesheet" type="text/css">
+    <link href="/css/bootstrap-treeview.css" rel="stylesheet" type="text/css">
     <script src="/js/bootstrapValidator.js" type="text/javascript"></script>
+    <script src="/js/tag-it.js" type="text/javascript" charset="utf-8"></script>
   </head>
 
   <body>
@@ -26,17 +32,19 @@
             <li class="item-custom"><a class="item roboto-font" href="/">Каталог</a></li>
             <li class="item-custom"><a class="item roboto-font" href="/">Поиск</a></li>
             <li class="item-custom"><a class="item roboto-font" href="/">Популярные</a></li>
-            <li class="item-custom"><a class="item roboto-font  add-material" href="/">Добавление материала</a></li>
+            <li class="item-custom"><a class="item roboto-font  add-material" href="{% url 'add_material' %}">Добавление материала</a></li>
             {% if user.is_authenticated %}
               <li class="item-custom"><a class="item roboto-font" href="/">Личный кабинет</a></li>
             {% else %}
-              <li class="item-reg">
-                <a class="item reg" href="{% url 'login' %}">
-                <span class="glyphicon glyphicon-log-in"></span> Вход</a>
-              </li>
-              <li class="item-reg">
-                <a class="item reg signup" href="{% url 'signup' %}">
-                <span class="glyphicon glyphicon-user"></span> Регистрация</a>
+              <li class="not-reg">
+                  <li class="item-reg">
+                  <a class="item reg" href="{% url 'login' %}">
+                  <span class="glyphicon glyphicon-log-in"></span> Вход</a>
+                  </li>
+                  <li class="item-reg">
+                  <a class="item reg signup" href="{% url 'signup' %}">
+                  <span class="glyphicon glyphicon-user"></span> Регистрация</a>
+                  </li>
               </li>
             {% endif %}
           </ul>

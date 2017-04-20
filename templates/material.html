@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+
+	 <div class="jumbotron custom-jumbotron-materials">
+			 	<div class="panel panel-default">
+				  <div class="panel-body">
+            <p id="film-text"><b>Название материала</b><h2 class="title-text">{{ material.title }} </h2>
+              <b>Автор</b><h4>
+                <a href="/search/autor/{{ material.author }}" class="title-link"> {{ material.author }}</a></h4>
+              <b>Описание</b> <h4>{{ material.description }} </h4>
+              <b>Тип материала</b> <h4>{{ material.get_type_material_display }} </h4>
+              <b>Теги</b>
+                 <h4> {% for tag in material.tags.all %}
+                    <a href="/tag/{{ tag.tag }}" class="title-link"> {{ tag.tag }}</a>
+                      {% endfor %}
+                </h4>
+
+           <span id="avgrat"> {{ film.rating }} </span> <img class="star-rating-page"
+                    src="/uploads/star.png"></p>
+				  </div>
+				</div>
+ </div>
+
+{%endblock %}

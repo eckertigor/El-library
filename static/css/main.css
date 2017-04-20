@@ -14,6 +14,11 @@
     vertical-align:middle;
 }
 
+
+.title-link {
+  color: #333;
+}
+
 .item-reg .signup {
     margin-top: 5px;
 }
@@ -29,6 +34,10 @@
     width: 100%;
 }
 
+.rubrik-input {
+  width: 60%;
+  display: inline;
+}
 
 .navbar-custom .navbar-nav > li > a {
   	color:#fff;
@@ -76,6 +85,18 @@
   padding-left: 20px!important;
 }
 
+.title-text {
+	margin-top:0px;
+}
+
+.custom-jumbotron-materials {
+  margin-top: 85px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  padding-right: 20px!important;
+  padding-left: 20px!important;
+}
+
 .panel {
   margin-bottom: 3px;
 }
@@ -90,13 +111,21 @@
 
 .not-reg {
   margin-top: 15px;
-  display: inline-block;
 }
 
 .userblock {
   align:center;
   margin-left: 70px;
   margin-top: 7px;
+}
+
+.admin-panel {
+  float : right;
+}
+
+.admin-panel:hover {
+  float : right;
+  color: #fff !important;
 }
 
 .roboto-font {

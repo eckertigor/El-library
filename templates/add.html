@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="jumbotron custom-jumbotron reg-container">
+  <h2>Добавление нового материала</h2>
+  <form id="film-form" action="/control/add/" method="post" enctype="multipart/form-data">
+   	{% csrf_token %}
+   	{% for f in form.visible_fields %}
+      <div class="form-group {% if f.errors %}has-error{% endif %}" >
+      	<label for="{{ f.id_for_label }}">{{ f.label }} </label>
+      	  {{ f }}
+      </div>
+    {% endfor %}
+      <button id="film-add" type="submit" class="btn btn-success">Добавить</button><br>
+    {% if error %}
+      <br>
+      <div class="alert alert-danger" role ="alert" id="field-error">{{ error }}</div>
+    {% endif %}
+
+    <div class="modal fade" id="rubrik_dialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Выбор рубрики</h4>
+          </div>
+          <div class="modal-body">
+            <div id="tree"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" id="btn-close" data-dismiss="modal">Закрыть</button>
+            <button type="button" class="btn btn-default" id="btn-expand">Предложить рубрику</button>
+            <button type="button" class="btn btn-primary" id="btn-save" data-dismiss="modal">Сохранить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+{%endblock %}

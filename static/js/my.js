@@ -1,3 +1,47 @@
+var selectedNode = {};
+var savedNode;
+var tree = [
+  {
+    text: "Parent 1",
+    nodes: [
+      {
+        text: "Child 1",
+        nodes: [
+          {
+            text: "Grandchild 1",
+            nodes: [
+              {
+                text: "Grandchild 1",
+              },
+              {
+                text: "Grandchild 2"
+              }
+            ]
+          },
+          {
+            text: "Grandchild 2"
+          }
+        ]
+      },
+      {
+        text: "Child 2"
+      }
+    ],
+
+  },
+  {
+    text: "Parent 2"
+  },
+  {
+    text: "Parent 3"
+  },
+  {
+    text: "Parent 4"
+  },
+  {
+    text: "Parent 5",
+  }
+];
 
         $.ajaxSetup({
              beforeSend: function(xhr, settings) {
@@ -22,6 +66,13 @@
              }
          }
     });
+$(document).ready(function() {
+  var sampleTags = ['пирожки', 'борщ', 'капустка', 'coldfusion', 'javascript', 'asp', 'ruby', 'python', 'c', 'scala', 'groovy', 'haskell', 'perl', 'erlang', 'apl', 'cobol', 'go', 'lua'];
+
+  $("#id_tags").tagit({
+    availableTags: sampleTags
+    });
+  });
 
 $(document).ready(function() {
     $('#btn-sbmt').click(function(e) {
@@ -59,6 +110,67 @@ $(document).ready(function() {
 });
 
 $(document).ready(function() {
+  $('#id_rubrik').click(function(e) {
+    e.preventDefault();
+
+    $('#rubrik_dialog').modal('show');
+
+    $('#tree').treeview({
+      data: tree,         // data is not optional
+      selectable: true,
+    });
+    $('#btn-expand').prop('disabled', false);
+    if (savedNode) {
+      $('#tree').treeview('addNode', [ savedNode.parentId, { text: savedNode.text } ])
+      $('#tree').treeview('expandNode', [ 0, { levels: 4, silent: true } ]);
+      $('#tree').treeview('selectNode', [ savedNode.id, { silent: true } ]);
+    }
+
+  });
+});
+
+$(document).ready(function() {
+
+  $('#btn-expand').click(function(e) {
+    var newNode;
+    var nodeId;
+    var parId = $('#tree').treeview('getSelected', nodeId)[0].nodeId;
+    newNode = $('#tree').treeview('addNode', [ parId, { text: 'new node' } ]);
+    $('#tree').treeview('expandNode', [ parId, { levels: 1, silent: true } ]);
+   //
+    $('li[data-nodeid='+newNode+']').replaceWith('<li class="list-group-item" \
+   style="color:undefined;background-color:undefined;"><span class="indent">\
+    </span><span class="icon glyphicon"> \
+    </span><span class="icon node-icon"></span> \
+    <input class="form-control rubrik-input" id="custom-rubrik" \
+    maxlength="50" name="author" placeholder="Введите название рубрики" required="true" type="text"> \
+    <button id="btn-add-rubrik" type="button" class="btn btn-success">Добавить рубрику</button> \
+    </li>');
+    $('.list-group').on("click", "#btn-add-rubrik",
+      function() {
+        text = $('#tree').treeview('getNode', newNode).text = $('#custom-rubrik').val();
+        $('#tree').treeview('selectNode', [ newNode, { silent: true } ]);
+        parentId = $('#tree').treeview('getNode', newNode).parentId;
+        selectedNode.id = newNode;
+        selectedNode.parentId = parentId;
+        selectedNode.text = text;
+        console.log(selectedNode);
+
+      }
+    );
+    $('#btn-expand').prop('disabled', true);
+
+  });
+});
+
+$(document).ready(function() {
+
+  $('#btn-save').click(function(e) {
+    savedNode = selectedNode;
+  });
+
+});
+$(document).ready(function() {
     $('#btn-log').click(function(e) {
           e.preventDefault();
           // $('#log-form').bootstrapValidator('validate')
@@ -79,10 +191,9 @@ $(document).ready(function() {
                   } else if (data.hasOwnProperty('result')) {
                         $("#log-form").replaceWith( '<div class="alert alert-success" role="alert"> \
                         '+data.result+'</div>');
-                        $(".not-reg").replaceWith( '<li><img class="navbar-right img-rounded navbar-img avatar" src="/uploads/'+data.avatar+'"></li>\
-                        <a href="/profile" class="navbar-link navbar-user roboto-font-user">Профиль '+data.user+'</a><br>\
-                        <a href="/logout/" class="navbar-link navbar-logout roboto-font-user">\
-                        <span class="glyphicon glyphicon-log-out"></span> Logout </a>');
+                        $('.item-reg').remove();
+                        $(".not-reg").replaceWith( '<li class="item-custom"> \
+                        <a class="item roboto-font" href="/">Личный кабинет</a></li>');
                   }
               },
               error: function (data) {

@@ -13,9 +13,12 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.contrib import admin
 from el_library import views
+import tagulous.views
+from el_library.models import Material
+
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
@@ -23,5 +26,13 @@ urlpatterns = [
     url(r'^login/?', views.login, name='login'),
     url(r'^admin/', admin.site.urls),
     url(r'^logout/?', views.logout, name='logout'),
+    url(r'^control/add/$', views.add_material, name='add_material'),
+    url(
+        r'^api/tags/$',
+        tagulous.views.autocomplete,
+        {'tag_model': Material},
+        name='material_tag_autocomplete',
+    ),
+    url(r'^material/(?P<material_id>\d+)?/?', views.material, name='mterial'),
 
 ]

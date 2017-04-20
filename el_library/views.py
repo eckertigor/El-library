@@ -1,20 +1,25 @@
 # -*- coding: utf-8
 from django.shortcuts import render
-from el_library.forms import UserForm, LoginForm
-from el_library.models import Profile
+from el_library.forms import UserForm, LoginForm, MaterialForm
+from el_library.models import Profile, Material
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect, Http404, JsonResponse
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
 
 
 def index(request):
-    # films = Film.objects.filter(is_deleted=0).order_by('-rating')
-    # if request.user.is_authenticated():
-    #     profile = Profile.objects.get(nickname=request.user.username)
-    #     avatar = profile.avatar.name[2:]
-    #     return render(request, 'index.html', { 'avatar' : avatar,
-    #                                                 'films' : films})
-    return render(request, 'index.html')
+    materials = Material.objects.all()
+    return render(request, 'index.html', {'materials': materials})
+
+
+def material(request, material_id):
+    try:
+        material = Material.objects.get(id=material_id)
+    except Material.DoesNotExist:
+        raise Http404
+    return render(request, 'material.html', {'material': material})
 
 
 def signup(request):
@@ -73,6 +78,24 @@ def login(request):
     else:
         form = LoginForm()
         return render(request, 'login.html', {'form': form})
+
+
+@login_required
+def add_material(request):
+    if request.method == 'POST':
+        response_data = {}
+        materialForm = MaterialForm(request.POST, request.FILES)
+        if materialForm.is_valid():
+            materialForm.save_material(request)
+            response_data['result'] = u'Материал успешно добавлен!'
+            response_data['button'] = u'Вернуться в панель управления?'
+            return JsonResponse(response_data)
+        else:
+            response_data['error'] = u'Проверьте правильность введенных данных'
+            return JsonResponse(response_data)
+    else:
+        form = MaterialForm()
+        return render(request, 'add.html', {'form': form})
 
 
 def logout(request):
