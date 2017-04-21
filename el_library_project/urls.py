@@ -25,6 +25,8 @@ urlpatterns = [
     url(r'^signup/?', views.signup, name='signup'),
     url(r'^login/?', views.login, name='login'),
     url(r'^admin/', admin.site.urls),
+    url(r'^tags/', views.tags, name='tags'),
+    url(r'^rubrik/', views.rubrik, name='rubrik'),
     url(r'^logout/?', views.logout, name='logout'),
     url(r'^control/add/$', views.add_material, name='add_material'),
     url(

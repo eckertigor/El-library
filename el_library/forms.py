@@ -2,7 +2,7 @@
 from django.contrib.auth.models import User
 from django import forms
 from el_library import models
-from el_library.models import Material, Tags
+from el_library.models import Material, Tags, Rubrik
 import tagulous.forms
 
 # from el_library_projeect.models import Film
@@ -72,6 +72,13 @@ class MaterialForm(forms.Form):
 		required=True, label=u'Рубрика',
 		widget=forms.TextInput(attrs={'class': 'form-control', 'required': 'true', 'maxlength': 100})
 	)
+	rubrik_parent = forms.CharField(widget=forms.HiddenInput())
+	isbn_choise = (
+		('yes', 'Есть'),
+		('no', 'Нет'),
+	)
+	isbn = forms.ChoiceField(widget=forms.RadioSelect, choices=isbn_choise, required=False)
+	isbn_hidden = forms.CharField(widget=forms.HiddenInput())
 	tags = forms.CharField(
 		required=True, label=u'Теги (введите теги через пробел)',
 		widget=forms.TextInput(attrs={'class': 'form-control', 'required': 'true', 'maxlength': 100})
@@ -89,12 +96,21 @@ class MaterialForm(forms.Form):
 	def save_material(self, request):
 		existing_tag = []
 		tags_list = self.cleaned_data.get('tags').split(',')
+		rubrik_name = self.cleaned_data.get('rubrik')
+		rubrik_parent = self.cleaned_data.get('rubrik_parent')
+		try:
+			rubrik = Rubrik.objects.get(name=rubrik_name)
+		except Rubrik.DoesNotExist:
+			parent = Rubrik.objects.get(name=rubrik_parent)
+			rubrik = Rubrik.objects.create(name=rubrik_name, parent_id=parent.id)
 		material = Material.objects.create(
 			title = self.cleaned_data.get('title'),
 			author = self.cleaned_data.get('author'),
 			type_material = self.cleaned_data.get('types'),
 			description = self.cleaned_data.get('description'),
 			document = self.cleaned_data.get('document'),
+			isbn = self.cleaned_data.get('isbn_hidden'),
+			rubrik_id = rubrik.id,
 			)
 		for tag in tags_list:
 			try:

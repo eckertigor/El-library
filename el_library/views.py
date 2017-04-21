@@ -1,10 +1,11 @@
 # -*- coding: utf-8
 from django.shortcuts import render
 from el_library.forms import UserForm, LoginForm, MaterialForm
-from el_library.models import Profile, Material
+from el_library.models import Profile, Material, Tags, Rubrik
 from django.contrib import auth
+from django.core import serializers
 from django.contrib.auth.models import User
-from django.http import HttpResponseRedirect, Http404, JsonResponse
+from django.http import HttpResponseRedirect, Http404, JsonResponse, HttpResponse
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 
@@ -52,6 +53,22 @@ def signup(request):
         return render(request, 'signup.html', {'form': form})
 
 
+def tags(request):
+    if request.method == 'GET':
+        response_data = {}
+        data = Tags.objects.only('tag').all()
+        response_data = serializers.serialize('json', data)
+        return HttpResponse(response_data, content_type='application/json')
+
+
+def rubrik(request):
+    if request.method == 'GET':
+        response_data = {}
+        data = Rubrik.objects.all()
+        response_data = serializers.serialize('json', data)
+        return HttpResponse(response_data, content_type='application/json')
+
+
 def login(request):
     if request.user.is_authenticated():
         return redirect('/')
@@ -91,7 +108,9 @@ def add_material(request):
             response_data['button'] = u'Вернуться в панель управления?'
             return JsonResponse(response_data)
         else:
-            response_data['error'] = u'Проверьте правильность введенных данных'
+
+            # response_data['error'] = u'Проверьте правильность введенных данных'
+            response_data['error'] = materialForm.errors
             return JsonResponse(response_data)
     else:
         form = MaterialForm()

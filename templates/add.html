@@ -3,7 +3,7 @@
 
 <div class="jumbotron custom-jumbotron reg-container">
   <h2>Добавление нового материала</h2>
-  <form id="film-form" action="/control/add/" method="post" enctype="multipart/form-data">
+  <form id="add-form" action="/control/add/" method="post" enctype="multipart/form-data">
    	{% csrf_token %}
    	{% for f in form.visible_fields %}
       <div class="form-group {% if f.errors %}has-error{% endif %}" >
@@ -16,7 +16,11 @@
       <br>
       <div class="alert alert-danger" role ="alert" id="field-error">{{ error }}</div>
     {% endif %}
-
+    {% for hidden in form.hidden_fields %}
+    {{ hidden }}
+    {% endfor %}
+    {{ form.errors }}
+{{ form.non_field_errors }}
     <div class="modal fade" id="rubrik_dialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
       <div class="modal-dialog" role="document">
         <div class="modal-content">

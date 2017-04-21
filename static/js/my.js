@@ -1,6 +1,7 @@
 var selectedNode = {};
 var savedNode;
-var tree = [
+var tree = [];
+var tree2 = [
   {
     text: "Parent 1",
     nodes: [
@@ -42,7 +43,6 @@ var tree = [
     text: "Parent 5",
   }
 ];
-
         $.ajaxSetup({
              beforeSend: function(xhr, settings) {
                  function getCookie(name) {
@@ -67,12 +67,47 @@ var tree = [
          }
     });
 $(document).ready(function() {
-  var sampleTags = ['пирожки', 'борщ', 'капустка', 'coldfusion', 'javascript', 'asp', 'ruby', 'python', 'c', 'scala', 'groovy', 'haskell', 'perl', 'erlang', 'apl', 'cobol', 'go', 'lua'];
+  var tagsList = ['one', 'дваэ'];
+  $.ajax({
+      url: '/tags/',
+      type: 'GET',
+      async: false,
+      data: {},
+      success: function (data) {
+        for (var i = 0; i < data.length; i++) {
+          tagsList.push(data[i].fields.tag);
+        }
+        console.log(tagsList);
 
+      },
+      error: function (data) {
+        console.log('load tags error');
+      },
+      cache: false,
+      contentType: false,
+      processData: false
+  });
+  console.log(tagsList);
   $("#id_tags").tagit({
-    availableTags: sampleTags
+    availableTags: tagsList
     });
   });
+
+$(document).ready(function() {
+  $('#id_isbn_0').on('change', function() {
+    if ($('input[name=isbn]:checked', '#add-form').val() == 'yes') {
+      $('#id_isbn').append('<input class="form-control isbn" id="isbn" \
+              maxlength="100" name="author" required="true" \
+               type="text">');
+    }
+  });
+
+  $('#id_isbn_1').on('change', function() {
+    if ($('input[name=isbn]:checked', '#add-form').val() == 'no') {
+      $('#isbn').remove();
+    }
+  });
+});
 
 $(document).ready(function() {
     $('#btn-sbmt').click(function(e) {
@@ -108,10 +143,49 @@ $(document).ready(function() {
           });
      });
 });
+$(document).ready(function() {
+  $.ajax({
+      url: '/rubrik/',
+      type: 'GET',
+      async: false,
+      data: {},
+      success: function (data) {
+        console.log(tree);
+        console.log(tree2);
+        for (var i = 0; i < data.length; i++) {
+          console.log(data[i]);
+          if (data[i].fields.parent_id == null) {
+            data_obj = new Object();
+            data_obj.text = data[i].fields.name;
+            tree[i] = data_obj;
+          } else {
+            data_obj = new Object();
+            data_obj.text = data[i].fields.name;
+            if (!tree[i].nodes) {
+                tree[i].nodes = [];
+            }
+            tree[data[i].fields.parent_id].nodes.push(data_obj);
+          }
+        }
+
+
+      },
+      error: function (data) {
+        console.log(data)
+      },
+      cache: false,
+      contentType: false,
+      processData: false
+  });
+});
+
 
 $(document).ready(function() {
+  console.log(tree);
   $('#id_rubrik').click(function(e) {
     e.preventDefault();
+
+    console.log(tree);
 
     $('#rubrik_dialog').modal('show');
 
@@ -148,13 +222,13 @@ $(document).ready(function() {
     </li>');
     $('.list-group').on("click", "#btn-add-rubrik",
       function() {
-        text = $('#tree').treeview('getNode', newNode).text = $('#custom-rubrik').val();
+        var text = $('#tree').treeview('getNode', newNode).text = $('#custom-rubrik').val();
         $('#tree').treeview('selectNode', [ newNode, { silent: true } ]);
         parentId = $('#tree').treeview('getNode', newNode).parentId;
         selectedNode.id = newNode;
         selectedNode.parentId = parentId;
         selectedNode.text = text;
-        console.log(selectedNode);
+        console.log(text);
 
       }
     );
@@ -166,7 +240,18 @@ $(document).ready(function() {
 $(document).ready(function() {
 
   $('#btn-save').click(function(e) {
+    console.log(selectedNode);
+    var nodeId;
+    // if (jQuery.isEmptyObject(selectedNode)) {
+      selectedNode = $('#tree').treeview('getSelected', nodeId)[0];
+    // }
+    console.log(selectedNode);
+
     savedNode = selectedNode;
+    console.log($('#tree').treeview('getNode', savedNode.parentId).text);
+    $('#id_rubrik').val(savedNode.text);
+
+    $('#id_rubrik_parent').val($('#tree').treeview('getNode', savedNode.parentId).text);
   });
 
 });
@@ -207,9 +292,10 @@ $(document).ready(function() {
      return false;
 });
 
-$(document).on("submit","#film-form", function (e) {
+$(document).on("submit","#add-form", function (e) {
           e.preventDefault();
-          var formData = new FormData($('#film-form')[0]);
+          $('#id_isbn_hidden').val($('#isbn').val());
+          var formData = new FormData($('#add-form')[0]);
           $.ajax({
               url: '/control/add/',
               type: 'POST',
@@ -220,11 +306,11 @@ $(document).on("submit","#film-form", function (e) {
                       if( $('#field-error').length ) {
                           $('#field-error').text(data.error);
                       } else {
-                          $("#film-form").append('<br><div class="alert alert-danger" \
+                          $("#add-form").append('<br><div class="alert alert-danger" \
                           role ="alert" id="field-error">'+data.error+'</div>');
                       }
                   } else if (data.hasOwnProperty('result')) {
-                      $("#film-form").replaceWith( '<div class="alert alert-success" role="alert"> \
+                      $("#add-form").replaceWith( '<div class="alert alert-success" role="alert"> \
                       '+data.result+'</div><p><a href="/control/" class="btn btn-primary btn-back" role="button">'+data.button+'</a></p>');
                   }
               },

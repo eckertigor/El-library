@@ -14,6 +14,11 @@ class Tags(models.Model):
     tag = models.CharField(max_length=25)
 
 
+class Rubrik(models.Model):
+    name = models.CharField(max_length=100)
+    parent_id = models.IntegerField(null=True)
+
+
 class Material(models.Model):
     title = models.CharField(max_length=100)
     author = models.CharField(max_length=100)
@@ -29,5 +34,7 @@ class Material(models.Model):
         ('Other', 'Другое'),
     )
     type_material = models.CharField(max_length=20, choices=TYPES_MATERIAL)
+    rubrik = models.ForeignKey(Rubrik, null=True, on_delete=models.SET_NULL)
+    isbn = models.IntegerField(null=True)
     tags = models.ManyToManyField(Tags)
     document = models.FileField(default=0)
