@@ -23,6 +23,11 @@ def material(request, material_id):
     return render(request, 'material.html', {'material': material})
 
 
+def my(request):
+    materials = Material.objects.filter(user=request.user, is_deleted=0)
+    return render(request, 'my.html', {'materials': materials})
+
+
 def signup(request):
     if request.method == 'POST':
         response_data = {}
@@ -32,7 +37,6 @@ def signup(request):
             fio = form.cleaned_data.get('fio')
             email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password')
-            avatar = form.cleaned_data.get('avatar')
             if User.objects.filter(username=username).exists():
                 response_data['error'] = u'Пользователь с таким username уже существует'
                 return JsonResponse(response_data)
@@ -53,6 +57,12 @@ def signup(request):
         return render(request, 'signup.html', {'form': form})
 
 
+def search(request, type_r, query):
+    rubrik = Rubrik.objects.get(id=query)
+    materials = Material.objects.filter(rubrik=rubrik.id)
+    return render(request, 'search.html', {'materials': materials, 'query': query})
+
+
 def tags(request):
     if request.method == 'GET':
         response_data = {}
@@ -61,10 +71,14 @@ def tags(request):
         return HttpResponse(response_data, content_type='application/json')
 
 
+def catalog(request):
+    return render(request, 'catalog.html')
+
+
 def rubrik(request):
     if request.method == 'GET':
         response_data = {}
-        data = Rubrik.objects.all()
+        data = Rubrik.objects.filter(is_approved=1).order_by('pk')
         response_data = serializers.serialize('json', data)
         return HttpResponse(response_data, content_type='application/json')
 
@@ -108,15 +122,21 @@ def add_material(request):
             response_data['button'] = u'Вернуться в панель управления?'
             return JsonResponse(response_data)
         else:
-
-            # response_data['error'] = u'Проверьте правильность введенных данных'
             response_data['error'] = materialForm.errors
+            # response_data['error'] = u'Проверьте правильность введенных данных'
             return JsonResponse(response_data)
     else:
         form = MaterialForm()
         return render(request, 'add.html', {'form': form})
 
 
+def lk(request):
+    if request.user.is_authenticated():
+        return render(request, 'lk.html')
+    else:
+        return redirect('login/')
+
+
 def logout(request):
     auth.logout(request)
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return redirect('login/')

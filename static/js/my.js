@@ -1,48 +1,6 @@
 var selectedNode = {};
 var savedNode;
 var tree = [];
-var tree2 = [
-  {
-    text: "Parent 1",
-    nodes: [
-      {
-        text: "Child 1",
-        nodes: [
-          {
-            text: "Grandchild 1",
-            nodes: [
-              {
-                text: "Grandchild 1",
-              },
-              {
-                text: "Grandchild 2"
-              }
-            ]
-          },
-          {
-            text: "Grandchild 2"
-          }
-        ]
-      },
-      {
-        text: "Child 2"
-      }
-    ],
-
-  },
-  {
-    text: "Parent 2"
-  },
-  {
-    text: "Parent 3"
-  },
-  {
-    text: "Parent 4"
-  },
-  {
-    text: "Parent 5",
-  }
-];
         $.ajaxSetup({
              beforeSend: function(xhr, settings) {
                  function getCookie(name) {
@@ -67,7 +25,7 @@ var tree2 = [
          }
     });
 $(document).ready(function() {
-  var tagsList = ['one', 'дваэ'];
+  var tagsList = [];
   $.ajax({
       url: '/tags/',
       type: 'GET',
@@ -150,10 +108,7 @@ $(document).ready(function() {
       async: false,
       data: {},
       success: function (data) {
-        console.log(tree);
-        console.log(tree2);
         for (var i = 0; i < data.length; i++) {
-          console.log(data[i]);
           if (data[i].fields.parent_id == null) {
             data_obj = new Object();
             data_obj.text = data[i].fields.name;
@@ -161,8 +116,8 @@ $(document).ready(function() {
           } else {
             data_obj = new Object();
             data_obj.text = data[i].fields.name;
-            if (!tree[i].nodes) {
-                tree[i].nodes = [];
+            if (!tree[data[i].fields.parent_id].nodes) {
+                tree[data[i].fields.parent_id].nodes = [];
             }
             tree[data[i].fields.parent_id].nodes.push(data_obj);
           }
@@ -176,6 +131,17 @@ $(document).ready(function() {
       cache: false,
       contentType: false,
       processData: false
+  });
+  $('#tree').treeview({
+    data: tree,         // data is not optional
+    selectable: true,
+    levels : 1,
+  });
+  $('#show_cat').click(function(e) {
+    var nodeId;
+    var rubrik = $('#tree').treeview('getSelected', nodeId)[0].text;
+    window.location.href = 'http://localhost/search/rubrik/'+rubrik+'';
+
   });
 });
 
@@ -194,10 +160,11 @@ $(document).ready(function() {
       selectable: true,
     });
     $('#btn-expand').prop('disabled', false);
+    console.log(savedNode);
     if (savedNode) {
       $('#tree').treeview('addNode', [ savedNode.parentId, { text: savedNode.text } ])
       $('#tree').treeview('expandNode', [ 0, { levels: 4, silent: true } ]);
-      $('#tree').treeview('selectNode', [ savedNode.id, { silent: true } ]);
+      $('#tree').treeview('selectNode', [ savedNode.nodeId, { silent: true } ]);
     }
 
   });
@@ -243,12 +210,12 @@ $(document).ready(function() {
     console.log(selectedNode);
     var nodeId;
     // if (jQuery.isEmptyObject(selectedNode)) {
-      selectedNode = $('#tree').treeview('getSelected', nodeId)[0];
+    selectedNode = $('#tree').treeview('getSelected', nodeId)[0];
     // }
-    console.log(selectedNode);
+    // console.log(selectedNode);
 
     savedNode = selectedNode;
-    console.log($('#tree').treeview('getNode', savedNode.parentId).text);
+    // console.log($('#tree').treeview('getNode', savedNode.parentId).text);
     $('#id_rubrik').val(savedNode.text);
 
     $('#id_rubrik_parent').val($('#tree').treeview('getNode', savedNode.parentId).text);
@@ -309,6 +276,8 @@ $(document).on("submit","#add-form", function (e) {
                           $("#add-form").append('<br><div class="alert alert-danger" \
                           role ="alert" id="field-error">'+data.error+'</div>');
                       }
+                      console.log(data.error);
+                      
                   } else if (data.hasOwnProperty('result')) {
                       $("#add-form").replaceWith( '<div class="alert alert-success" role="alert"> \
                       '+data.result+'</div><p><a href="/control/" class="btn btn-primary btn-back" role="button">'+data.button+'</a></p>');

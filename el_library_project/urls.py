@@ -26,8 +26,12 @@ urlpatterns = [
     url(r'^login/?', views.login, name='login'),
     url(r'^admin/', admin.site.urls),
     url(r'^tags/', views.tags, name='tags'),
+    url(r'^lk/$', views.lk, name='lk'),
     url(r'^rubrik/', views.rubrik, name='rubrik'),
+    url(r'^lk/my/$', views.my, name='my'),
+    url(r'^catalog/', views.catalog, name='catalog'),
     url(r'^logout/?', views.logout, name='logout'),
+    url(r'^search/(?P<type_r>\d+)?/?(?P<query>\d+)?/?', views.search, name = 'search'),
     url(r'^control/add/$', views.add_material, name='add_material'),
     url(
         r'^api/tags/$',

@@ -5,8 +5,6 @@ from el_library import models
 from el_library.models import Material, Tags, Rubrik
 import tagulous.forms
 
-# from el_library_projeect.models import Film
-
 
 class UserForm(forms.Form):
 	username = forms.CharField(
@@ -78,7 +76,7 @@ class MaterialForm(forms.Form):
 		('no', 'Нет'),
 	)
 	isbn = forms.ChoiceField(widget=forms.RadioSelect, choices=isbn_choise, required=False)
-	isbn_hidden = forms.CharField(widget=forms.HiddenInput())
+	isbn_hidden = forms.CharField(widget=forms.HiddenInput(), required=False)
 	tags = forms.CharField(
 		required=True, label=u'Теги (введите теги через пробел)',
 		widget=forms.TextInput(attrs={'class': 'form-control', 'required': 'true', 'maxlength': 100})
@@ -102,15 +100,20 @@ class MaterialForm(forms.Form):
 			rubrik = Rubrik.objects.get(name=rubrik_name)
 		except Rubrik.DoesNotExist:
 			parent = Rubrik.objects.get(name=rubrik_parent)
-			rubrik = Rubrik.objects.create(name=rubrik_name, parent_id=parent.id)
+			rubrik = Rubrik.objects.create(name=rubrik_name, parent_id=parent.id, is_approved=0)
+		if (self.cleaned_data.get('isbn_hidden') == ''):
+			isbn = 0
+		else:
+			isbn = self.cleaned_data.get('isbn_hidden')
 		material = Material.objects.create(
 			title = self.cleaned_data.get('title'),
 			author = self.cleaned_data.get('author'),
 			type_material = self.cleaned_data.get('types'),
 			description = self.cleaned_data.get('description'),
 			document = self.cleaned_data.get('document'),
-			isbn = self.cleaned_data.get('isbn_hidden'),
+			isbn = isbn,
 			rubrik_id = rubrik.id,
+			user=request.user,
 			)
 		for tag in tags_list:
 			try:

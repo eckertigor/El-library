@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="sort-menu">
+
+  {% if user.is_superuser %}
+    <a href="/control" class="btn btn-primary admin-panel" role="button">Панель администратора</a>
+  {% endif %}
+  <a href="/logout" class="btn btn-success admin-panel" role="button">Выход</a>
+
+</div>
+
+<div class="jumbotron custom-jumbotron reg-container-2">
+  <a href="{% url 'my' %}" class="btn btn-success panel-lk" role="button">Мои материалы</a>
+  <a href="" class="btn btn-success panel-lk" role="button">Коллекции материалов</a>
+  <a href="" class="btn btn-success panel-lk" role="button">Оценки</a>
+
+</div>
+
+{%endblock %}

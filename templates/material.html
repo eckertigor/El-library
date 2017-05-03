@@ -9,6 +9,8 @@
                 <a href="/search/autor/{{ material.author }}" class="title-link"> {{ material.author }}</a></h4>
               <b>Описание</b> <h4>{{ material.description }} </h4>
               <b>Тип материала</b> <h4>{{ material.get_type_material_display }} </h4>
+              <b>Рубрика</b> <h4>
+								{{ material.rubrik.name }} </h4>
               <b>Теги</b>
                  <h4> {% for tag in material.tags.all %}
                     <a href="/tag/{{ tag.tag }}" class="title-link"> {{ tag.tag }}</a>

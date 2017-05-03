@@ -1,2 +1,3 @@
 el-lib/
 uploads/
+*.pyc
