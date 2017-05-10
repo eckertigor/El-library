@@ -49,7 +49,7 @@ class LoginForm(forms.Form):
 
 class MaterialForm(forms.Form):
 	title = forms.CharField(
-		required=True, label=u'Заголовок материала',
+		required=True, label=u'Название материала',
 		widget=forms.TextInput(attrs={'class': 'form-control', 'required': 'true', 'maxlength': 100})
 	)
 	author = forms.CharField(

@@ -31,7 +31,8 @@ urlpatterns = [
     url(r'^lk/my/$', views.my, name='my'),
     url(r'^catalog/', views.catalog, name='catalog'),
     url(r'^logout/?', views.logout, name='logout'),
-    url(r'^search/(?P<type_r>\d+)?/?(?P<query>\d+)?/?', views.search, name = 'search'),
+    url(r'^search/(?P<type_r>\d+)?/?(?P<query>\d+)?/?', views.search, name='search'),
+    url(r'^lk/edit/(?P<material_id>\d+)?/', views.edit_material, name='edit'),
     url(r'^control/add/$', views.add_material, name='add_material'),
     url(
         r'^api/tags/$',

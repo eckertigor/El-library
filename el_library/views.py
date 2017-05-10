@@ -83,6 +83,39 @@ def rubrik(request):
         return HttpResponse(response_data, content_type='application/json')
 
 
+def edit_material(request, material_id):
+    material = Material.objects.get(id=material_id)
+    if material.user == request.user or request.user.is_superuser:
+        if request.method == 'POST':
+            response_data = {}
+            filmForm = FilmForm(request.POST, request.FILES, instance=film)
+            if filmForm.is_valid():
+                filmForm.save()
+                # film.add_date = old_d
+                # film.save()
+                response_data['result'] = u'Фильм успешно изменен'
+                response_data['button'] = u'Вернуться в панель управления?'
+                return JsonResponse(response_data)
+            else:
+                response_data['error'] = u'Проверьте правильность введенных данных'
+                return JsonResponse(response_data)
+        else:
+            tags = material.tags.all().values_list('tag', flat=True)
+            tags = list(tags)
+            # tags = str(tags)
+            # tags = type(tags)
+            form = MaterialForm(initial=
+                {'title': material.title, 'author': material.author,
+                 'description': material.description, 'types': material.type_material,
+                 'rubrik': material.rubrik.name, 'isbn': material.isbn,  'document': material.document,
+                 'tags': repr(tags).decode("unicode_escape"),
+                 })
+            return render(request, 'edit.html',
+                            { 'form': form, 'material': material })
+    else:
+        return redirect('/material/'+str(material.id))
+
+
 def login(request):
     if request.user.is_authenticated():
         return redirect('/')
