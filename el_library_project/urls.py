@@ -30,9 +30,11 @@ urlpatterns = [
     url(r'^rubrik/', views.rubrik, name='rubrik'),
     url(r'^lk/my/$', views.my, name='my'),
     url(r'^catalog/', views.catalog, name='catalog'),
+    url(r'^collections/', views.collections, name='collections'),
     url(r'^logout/?', views.logout, name='logout'),
     url(r'^search/(?P<type_r>\d+)?/?(?P<query>\d+)?/?', views.search, name='search'),
     url(r'^lk/edit/(?P<material_id>\d+)?/', views.edit_material, name='edit'),
+    url(r'^lk/(?P<action>\w+)/(?P<material_id>\d+)?/', views.delete_material, name='delete'),
     url(r'^control/add/$', views.add_material, name='add_material'),
     url(
         r'^api/tags/$',

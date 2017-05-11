@@ -24,6 +24,7 @@ var tree = [];
              }
          }
     });
+
 $(document).ready(function() {
   var tagsList = [];
   $.ajax({
@@ -51,17 +52,50 @@ $(document).ready(function() {
     });
   });
 
+  $(document).ready(function() {
+    $('#id_tags').removeAttr('required');
+  });
+
+$(document).ready(function() {
+  if ($('input[name=isbn]:checked', '#material-edit-form').val() == 'yes') {
+    var isbn = $('#id_isbn_hidden').val();
+    $('#id_isbn').append('<input class="form-control isbn" id="isbn" \
+            maxlength="13" required="true" \
+             type="text">');
+    $('#isbn').val(isbn);
+  }
+});
+
 $(document).ready(function() {
   $('#id_isbn_0').on('change', function() {
     if ($('input[name=isbn]:checked', '#add-form').val() == 'yes') {
       $('#id_isbn').append('<input class="form-control isbn" id="isbn" \
-              maxlength="100" name="author" required="true" \
+              maxlength="13" required="true" \
                type="text">');
     }
   });
 
   $('#id_isbn_1').on('change', function() {
     if ($('input[name=isbn]:checked', '#add-form').val() == 'no') {
+      $('#isbn').remove();
+    }
+  });
+});
+
+
+$(document).ready(function() {
+  $('#id_isbn_0').on('change', function() {
+    var isbn = $('#id_isbn_hidden').val();
+    if ($('input[name=isbn]:checked', '#material-edit-form').val() == 'yes') {
+      $('#id_isbn').append('<input class="form-control isbn" id="isbn" \
+              maxlength="13" required="true" \
+               type="text">');
+    }
+    $('#isbn').val(isbn);
+  });
+
+  $('#id_isbn_1').on('change', function() {
+    if ($('input[name=isbn]:checked', '#material-edit-form').val() == 'no') {
       $('#isbn').remove();
     }
   });
@@ -277,7 +311,7 @@ $(document).on("submit","#add-form", function (e) {
                           role ="alert" id="field-error">'+data.error+'</div>');
                       }
                       console.log(data.error);
-                      
+
                   } else if (data.hasOwnProperty('result')) {
                       $("#add-form").replaceWith( '<div class="alert alert-success" role="alert"> \
                       '+data.result+'</div><p><a href="/control/" class="btn btn-primary btn-back" role="button">'+data.button+'</a></p>');
@@ -292,12 +326,16 @@ $(document).on("submit","#add-form", function (e) {
           });
      });
 
-$(document).on("submit","#film-edit-form", function (e) {
+$(document).on("submit","#material-edit-form", function (e) {
           e.preventDefault();
-          var formData = new FormData($('#film-edit-form')[0]);
-          var film_id = $('#film_id').val();
+          $('#id_isbn_hidden').val($('#isbn').val());
+          var formData = new FormData($('#material-edit-form')[0]);
+          var material_id = $('#material_id').val();
+          for(var pair of formData.entries()) {
+             console.log(pair[0]+ ', '+ pair[1]);
+          }
           $.ajax({
-              url: '/control/edit/'+film_id+'',
+              url: '/lk/edit/'+material_id+'/',
               type: 'POST',
               data: formData,
               async: true,
@@ -306,13 +344,14 @@ $(document).on("submit","#film-edit-form", function (e) {
                       if( $('#field-error').length ) {
                           $('#field-error').text(data.error);
                       } else {
-                          $("#film-edit-form").append('<br><div class="alert alert-danger" \
+                          $("#material-edit-form").append('<br><div class="alert alert-danger" \
                           role ="alert" id="field-error">'+data.error+'</div>');
                       }
                   } else if (data.hasOwnProperty('result')) {
-                      $("#film-edit-form").replaceWith( '<div class="alert alert-success" role="alert"> \
-                      '+data.result+'</div><p><a href="/control/" class="btn btn-primary btn-back" role="button">'+data.button+'</a></p>');
+                      $("#material-edit-form").replaceWith( '<div class="alert alert-success" role="alert"> \
+                      '+data.result+'</div><p><a href="/lk/" class="btn btn-primary btn-back" role="button">'+data.button+'</a></p>');
                   }
+
               },
               error: function (data) {
                 console.log(data)
@@ -323,22 +362,19 @@ $(document).on("submit","#film-edit-form", function (e) {
           });
      });
 
-$(document).on("click", "#film-delete", function(e){
+$(document).on("click", "#material-delete", function(e){
            e.preventDefault();
-           var film_id = $('#film_id').val();
-           var film_title = $('#hide-title').val();
+           var material_id = $('#material_id').val();
            $.ajax({
-               url: '/control/delete/'+film_id+'',
+               url: '/lk/delete/'+material_id+'/',
                type: 'POST',
-               data: {'film_id' : $('#film_id').val()},
+               data: {'material_id' : $('material_id').val()},
                async: false,
                success: function (data) {
-                   if(data.hasOwnProperty('result')) {
-                     $("#title").replaceWith('<h2><b>(Удален)'+film_title+'</b></h2>');
-                     $("#film-delete").replaceWith('<a href="/control/restore/" \
-                                class="btn btn-success admin-edit" role="button" \
-                                id="film-restore">Восстановить</a>');
-                       }
+                  if (data.hasOwnProperty('result')) {
+                   $("#material-edit-form").replaceWith( '<div class="alert alert-success" role="alert"> \
+                   '+data.result+'</div><p><a href="/lk/" class="btn btn-primary btn-back" role="button">'+data.button+'</a></p>');
+                  }
                },
                error: function (data) {
                  console.log(data)
@@ -347,7 +383,30 @@ $(document).on("click", "#film-delete", function(e){
                contentType: false,
                processData: false
            });
-      });
+});
+
+$(document).on("click", "#material-restore", function(e){
+           e.preventDefault();
+           var material_id = $('#material_id').val();
+           $.ajax({
+               url: '/lk/restore/'+material_id+'/',
+               type: 'POST',
+               data: {'material_id' : $('material_id').val()},
+               async: false,
+               success: function (data) {
+                 if (data.hasOwnProperty('result')) {
+                  $("#material-edit-form").replaceWith( '<div class="alert alert-success" role="alert"> \
+                  '+data.result+'</div><p><a href="/lk/" class="btn btn-primary btn-back" role="button">'+data.button+'</a></p>');
+                 }
+               },
+               error: function (data) {
+                 console.log(data)
+               },
+               cache: false,
+               contentType: false,
+               processData: false
+           });
+});
 
 
  $(document).on("click", "#film-restore", function(e){

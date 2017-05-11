@@ -10,16 +10,29 @@
 <div class="jumbotron custom-jumbotron my-container">
 	<div class="active">
 		{% if materials  %}
+      <p>Активные материалы</p>
 			{% for material in materials %}
-				<ul class="list-group list-all-materials" id="{{ material.id }}">
-				  <li class="list-group-item">
-						<a href="/material/{{ material.id }}"><b>{{ material.title }}<b></a>
-						<a href="/control/delete/{{ material.id }}" class="btn btn-danger admin-edit control-item"
-											role="button" id="material-delete-control">Удалить</a>
-						<a href="/lk/edit/{{ material.id }}" class="btn btn-warning admin-edit control-item"
-											role="button">Редактировать</a>
-				  </li>
-				</ul>
+        {% if material.is_deleted == 0 %}
+  				<ul class="list-group list-all-materials" id="{{ material.id }}">
+  				  <li class="list-group-item">
+  						<a href="/material/{{ material.id }}"><b>{{ material.title }}<b></a>
+  						<a href="/lk/edit/{{ material.id }}" class="btn btn-warning admin-edit control-item"
+  											role="button">Редактировать</a>
+  				  </li>
+  				</ul>
+        {% endif %}
+			{% endfor %}
+      <p>Удаленные материалы</p>
+			{% for material in materials %}
+        {% if material.is_deleted == 1 %}
+  				<ul class="list-group list-all-materials" id="{{ material.id }}">
+  				  <li class="list-group-item">
+  						<a href="/material/{{ material.id }}"><b>{{ material.title }}<b></a>
+  						<a href="/lk/edit/{{ material.id }}" class="btn btn-warning admin-edit control-item"
+  											role="button">Редактировать</a>
+  				  </li>
+  				</ul>
+        {% endif %}
 			{% endfor %}
 		{% else %}
 		<div class="alert alert-success not-reg" role="alert">Вы пока не добавили ни одного материала</div>

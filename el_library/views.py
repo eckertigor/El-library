@@ -24,8 +24,19 @@ def material(request, material_id):
 
 
 def my(request):
-    materials = Material.objects.filter(user=request.user, is_deleted=0)
-    return render(request, 'my.html', {'materials': materials})
+    if request.user.is_authenticated():
+        materials = Material.objects.filter(user=request.user)
+        return render(request, 'my.html', {'materials': materials})
+    else:
+        return redirect('/login/')
+
+
+def collections(request):
+    if request.user.is_authenticated():
+        # collections = Material.objects.filter(user=request.user)
+        return render(request, 'collections.html', {'collections': collections})
+    else:
+        return redirect('/login/')
 
 
 def signup(request):
@@ -83,32 +94,86 @@ def rubrik(request):
         return HttpResponse(response_data, content_type='application/json')
 
 
+def delete_material(request, action, material_id):
+    material = Material.objects.get(id=material_id)
+    if material.user == request.user or request.user.is_superuser:
+        if request.method == 'POST':
+            response_data = {}
+            if action == 'delete':
+                material.is_deleted = 1
+                response_data['result'] = u'Материал успешно удален'
+            elif action == 'restore':
+                material.is_deleted = 0
+                response_data['result'] = u'Материал успешно восстановлен'
+            material.save()
+            response_data['button'] = u'Вернуться в личный кабинет?'
+            return JsonResponse(response_data)
+    else:
+        return redirect('/material/'+str(material.id))
+
+
 def edit_material(request, material_id):
     material = Material.objects.get(id=material_id)
     if material.user == request.user or request.user.is_superuser:
         if request.method == 'POST':
             response_data = {}
-            filmForm = FilmForm(request.POST, request.FILES, instance=film)
-            if filmForm.is_valid():
-                filmForm.save()
-                # film.add_date = old_d
-                # film.save()
-                response_data['result'] = u'Фильм успешно изменен'
-                response_data['button'] = u'Вернуться в панель управления?'
+            if 'document' not in request.FILES:
+                request.FILES['document'] = material.document
+            materialForm = MaterialForm(request.POST, request.FILES)
+            existing_tag = []
+            if materialForm.is_valid():
+                tags_list = materialForm.cleaned_data.get('tags').split(',')
+                rubrik_name = materialForm.cleaned_data.get('rubrik')
+                rubrik_parent = materialForm.cleaned_data.get('rubrik_parent')
+                try:
+                    rubrik = Rubrik.objects.get(name=rubrik_name)
+                except Rubrik.DoesNotExist:
+                    parent = Rubrik.objects.get(name=rubrik_parent)
+                    rubrik = Rubrik.objects.create(name=rubrik_name, parent_id=parent.id, is_approved=0)
+                if (materialForm.cleaned_data.get('isbn_hidden') == ''):
+                    isbn = 0
+                else:
+                    isbn = materialForm.cleaned_data.get('isbn_hidden')
+                material.title = materialForm.cleaned_data.get('title')
+                material.author = materialForm.cleaned_data.get('author')
+                material.type_material = materialForm.cleaned_data.get('types')
+                material.description = materialForm.cleaned_data.get('description')
+                material.document = materialForm.cleaned_data.get('document')
+                material.isbn = isbn
+                material.rubrik_id = rubrik.id
+                material.user = request.user
+                for tag in tags_list:
+                    try:
+                        Tags.objects.get(tag=tag)
+                        existing_tag.append(Tags.objects.get(tag=tag))
+                    except Tags.DoesNotExist:
+                        existing_tag.append(Tags.objects.create(tag=tag))
+                material.tags.clear()
+                material.tags.add(*existing_tag)
+                material.save()
+                response_data['result'] = u'Материал успешно изменен'
+                response_data['button'] = u'Вернуться в личный кабинет?'
                 return JsonResponse(response_data)
             else:
-                response_data['error'] = u'Проверьте правильность введенных данных'
+                response_data['error'] = u'Проверьте правильность введеных данных'
                 return JsonResponse(response_data)
         else:
             tags = material.tags.all().values_list('tag', flat=True)
             tags = list(tags)
-            # tags = str(tags)
-            # tags = type(tags)
+            tags = repr(tags).decode("unicode_escape")
+            tags = tags.replace("u'", '')
+            tags = tags.replace("'", '')
+            tags = tags.replace("[", '')
+            tags = tags.replace("]", '')
+            if material.isbn != 0:
+                isbn_state = 'yes'
+            else:
+                isbn_state = 'no'
             form = MaterialForm(initial=
                 {'title': material.title, 'author': material.author,
                  'description': material.description, 'types': material.type_material,
-                 'rubrik': material.rubrik.name, 'isbn': material.isbn,  'document': material.document,
-                 'tags': repr(tags).decode("unicode_escape"),
+                 'rubrik': material.rubrik.name, 'isbn': isbn_state,  'document': material.document,
+                 'tags': tags, 'isbn_hidden': material.isbn, 'rubrik_parent': material.rubrik.parent_id,
                  })
             return render(request, 'edit.html',
                             { 'form': form, 'material': material })
@@ -155,8 +220,8 @@ def add_material(request):
             response_data['button'] = u'Вернуться в панель управления?'
             return JsonResponse(response_data)
         else:
-            response_data['error'] = materialForm.errors
-            # response_data['error'] = u'Проверьте правильность введенных данных'
+            # response_data['error'] = materialForm.errors
+            response_data['error'] = u'Проверьте правильность введенных данных'
             return JsonResponse(response_data)
     else:
         form = MaterialForm()
@@ -167,7 +232,7 @@ def lk(request):
     if request.user.is_authenticated():
         return render(request, 'lk.html')
     else:
-        return redirect('login/')
+        return redirect('/login/')
 
 
 def logout(request):

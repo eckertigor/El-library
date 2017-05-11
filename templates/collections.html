@@ -10,10 +10,12 @@
 </div>
 
 <div class="jumbotron custom-jumbotron reg-container-2">
-  <a href="{% url 'my' %}" class="btn btn-success panel-lk" role="button">Мои материалы</a>
-  <a href="{% url 'collections' %}" class="btn btn-success panel-lk" role="button">Коллекции материалов</a>
-  <a href="" class="btn btn-success panel-lk" role="button">Оценки</a>
-
+  <a href="/collections/create" class="btn btn-success not-reg" role="button">Создать коллекцию</a>
+  {% if collections  %}
+    {% for collection in collections %}
+      <a href="/collections/{{ collection.id }}" class="btn btn-primary panel-lk" role="button">{{ collection.title}}</a>
+    {% endfor %}
+  {% endif %}
 </div>
 
 {%endblock %}

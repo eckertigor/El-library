@@ -4,7 +4,7 @@
   <div class="col-md-12 col-sm-12">
     <div class="jumbotron reg-container">
 	    <h2>Редактирование материала</h2>
-	    <form id="material-edit-form" action="/control/edit/{{ film.id }}" method="post" enctype="multipart/form-data">
+	    <form id="material-edit-form" method="post" enctype="multipart/form-data">
 	     	{% csrf_token %}
 	     	{% for f in form.visible_fields %}
 	        <div class="form-group {% if f.errors %}has-error{% endif %}" >
@@ -12,13 +12,34 @@
 	        	  {{ f }}
 	        </div>
         {% endfor %}
-        <input type="hidden" id="film_id" value="{{ film.id }}">
-	        <button id="film-edit" type="submit" class="btn btn-success">Сохранить</button>
+        {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+        {% endfor %}
+        <input type="hidden" id="material_id" value="{{ material.id }}">
+	        <button id="material-edit" type="submit" class="btn btn-success">Сохранить</button>
         {% if material.is_deleted == 0 %}
-	        <button id="film-delete" type="submit" class="btn btn-danger button-delete">Удалить фильм</button><br>
+	        <button id="material-delete" type="submit" class="btn btn-danger button-delete">Удалить материал</button><br>
         {% else %}
-          <button id="film-restore" class="btn btn-success admin-edit" type="sumbit">Восстановить фильм</button><br>
+          <button id="material-restore" class="btn btn-success admin-edit" type="sumbit">Восстановить материал</button><br>
         {% endif %}
+        <div class="modal fade" id="rubrik_dialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Выбор рубрики</h4>
+              </div>
+              <div class="modal-body">
+                <div id="tree"></div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="btn-close" data-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-default" id="btn-expand">Предложить рубрику</button>
+                <button type="button" class="btn btn-primary" id="btn-save" data-dismiss="modal">Сохранить</button>
+              </div>
+            </div>
+          </div>
+        </div>
 	    </form>
     </div>
   </div>

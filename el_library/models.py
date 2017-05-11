@@ -37,8 +37,15 @@ class Material(models.Model):
     )
     type_material = models.CharField(max_length=20, choices=TYPES_MATERIAL)
     rubrik = models.ForeignKey(Rubrik, null=True, on_delete=models.SET_NULL)
-    isbn = models.IntegerField(null=True)
+    isbn = models.BigIntegerField(null=True)
     tags = models.ManyToManyField(Tags)
     document = models.FileField(default=0)
     is_approved = models.IntegerField(default=0)
+    is_deleted = models.IntegerField(default=0)
+
+
+class Collection(models.Model):
+    title = models.CharField(max_length=50)
+    user = models.ForeignKey(User)
+    materials = models.ManyToManyField(Material)
     is_deleted = models.IntegerField(default=0)
