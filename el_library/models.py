@@ -47,5 +47,5 @@ class Material(models.Model):
 class Collection(models.Model):
     title = models.CharField(max_length=50)
     user = models.ForeignKey(User)
-    materials = models.ManyToManyField(Material)
+    materials = models.ManyToManyField(Material, null=True)
     is_deleted = models.IntegerField(default=0)

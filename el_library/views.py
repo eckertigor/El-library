@@ -1,7 +1,7 @@
 # -*- coding: utf-8
 from django.shortcuts import render
-from el_library.forms import UserForm, LoginForm, MaterialForm
-from el_library.models import Profile, Material, Tags, Rubrik
+from el_library.forms import UserForm, LoginForm, MaterialForm, CollectionForm
+from el_library.models import Profile, Material, Tags, Rubrik, Collection
 from django.contrib import auth
 from django.core import serializers
 from django.contrib.auth.models import User
@@ -33,8 +33,43 @@ def my(request):
 
 def collections(request):
     if request.user.is_authenticated():
-        # collections = Material.objects.filter(user=request.user)
+        collections = Collection.objects.filter(user=request.user)
         return render(request, 'collections.html', {'collections': collections})
+    else:
+        return redirect('/login/')
+
+
+def collection(request, collection_id):
+    try:
+        collection = Collection.objects.get(id=collection_id)
+    except Collection.DoesNotExist:
+        return redirect('/collections/')
+    if collection.user == request.user:
+        return render(request, 'collection.html', {'collection': collection})
+    else:
+        return redirect('/collections/')
+
+
+def create_collection(request):
+    if request.user.is_authenticated():
+        if request.method == 'POST':
+            response_data = {}
+            form = CollectionForm(request.POST)
+            if form.is_valid():
+                collection_title = form.cleaned_data.get('title')
+                if Collection.objects.filter(title=collection_title).exists():
+                    response_data['error'] = u'Коллекция с таким названием уже существует'
+                    return JsonResponse(response_data)
+                Collection.objects.create(title=collection_title, user=request.user)
+                response_data['result'] = u'Коллекция успешно создана'
+                response_data['button'] = u'Вернуться к списку коллекций?'
+                return JsonResponse(response_data)
+            else:
+                response_data['error'] = u'Проверьте введенные данные'
+                return JsonResponse(response_data)
+        if request.method == 'GET':
+            form = CollectionForm()
+            return render(request, 'create_collection.html', {'form': form})
     else:
         return redirect('/login/')
 

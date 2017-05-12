@@ -1,21 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="sort-menu">
+  <div class="sort-menu">
 
-  {% if user.is_superuser %}
-    <a href="/control" class="btn btn-primary admin-panel" role="button">Панель администратора</a>
-  {% endif %}
-  <a href="/logout" class="btn btn-success admin-panel" role="button">Выход</a>
+    {% if user.is_superuser %}
+      <a href="/control" class="btn btn-primary admin-panel" role="button">Панель администратора</a>
+    {% endif %}
+    <a href="/logout" class="btn btn-success admin-panel" role="button">Выход</a>
 
-</div>
+  </div>
 
-<div class="jumbotron custom-jumbotron reg-container-2">
-  <a href="/collections/create" class="btn btn-success not-reg" role="button">Создать коллекцию</a>
-  {% if collections  %}
-    {% for collection in collections %}
-      <a href="/collections/{{ collection.id }}" class="btn btn-primary panel-lk" role="button">{{ collection.title}}</a>
-    {% endfor %}
-  {% endif %}
-</div>
+  <div class="jumbotron custom-jumbotron reg-container-2">
+    <a href="/collections/create" class="btn btn-success not-reg" role="button">Создать коллекцию</a><br>
+    {% if collections  %}
+      {% for collection in collections %}
+        <a href="/collections/{{ collection.id }}" class="btn btn-primary panel-lk-col" role="button">{{ collection.title}}</a>
+      {% endfor %}
+    {% endif %}
+  </div>
 
 {%endblock %}

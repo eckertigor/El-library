@@ -326,6 +326,108 @@ $(document).on("submit","#add-form", function (e) {
           });
      });
 
+$(document).ready(function() {
+    $('#btn-log').click(function(e) {
+          e.preventDefault();
+          // $('#log-form').bootstrapValidator('validate')
+          var formData = new FormData($('#log-form')[0]);
+          $.ajax({
+              url: '/login/',
+              type: 'POST',
+              data: formData,
+              async: true,
+              success: function (data) {
+                  if(data.hasOwnProperty('error')) {
+                      if( $('#field-error').length ) {
+                          $('#field-error').text(data.error);
+                      } else {
+                          $("#log-form").append('<br><div class="alert alert-danger" \
+                          role ="alert" id="field-error">'+data.error+'</div>');
+                      }
+                  } else if (data.hasOwnProperty('result')) {
+                        $("#log-form").replaceWith( '<div class="alert alert-success" role="alert"> \
+                        '+data.result+'</div>');
+                        $('.item-reg').remove();
+                        $(".not-reg").replaceWith( '<li class="item-custom"> \
+                        <a class="item roboto-font" href="/">Личный кабинет</a></li>');
+                  }
+              },
+              error: function (data) {
+                console.log(data)
+              },
+              cache: false,
+              contentType: false,
+              processData: false
+          });
+     });
+     return false;
+});
+
+$(document).on("submit","#collection-form", function (e) {
+          e.preventDefault();
+          // $('#log-form').bootstrapValidator('validate')
+          var formData = new FormData($('#collection-form')[0]);
+          $.ajax({
+              url: '/collections/create/',
+              type: 'POST',
+              data: formData,
+              async: true,
+              success: function (data) {
+                  if(data.hasOwnProperty('error')) {
+                      if( $('#field-error').length ) {
+                          $('#field-error').text(data.error);
+                      } else {
+                          $("#collection-form").append('<br><div class="alert alert-danger" \
+                          role ="alert" id="field-error">'+data.error+'</div>');
+                      }
+                  } else if (data.hasOwnProperty('result')) {
+                      $("#collection-form").replaceWith( '<div class="alert alert-success" role="alert"> \
+                      '+data.result+'</div><p><a href="/collections/" class="btn btn-primary btn-back" role="button">'+data.button+'</a></p>');
+                  }
+              },
+              error: function (data) {
+                console.log(data)
+              },
+              cache: false,
+              contentType: false,
+              processData: false
+          });
+     });
+
+
+$(document).on("submit","#add-form", function (e) {
+          e.preventDefault();
+          $('#id_isbn_hidden').val($('#isbn').val());
+          var formData = new FormData($('#add-form')[0]);
+          $.ajax({
+              url: '/control/add/',
+              type: 'POST',
+              data: formData,
+              async: true,
+              success: function (data) {
+                  if(data.hasOwnProperty('error')) {
+                      if( $('#field-error').length ) {
+                          $('#field-error').text(data.error);
+                      } else {
+                          $("#add-form").append('<br><div class="alert alert-danger" \
+                          role ="alert" id="field-error">'+data.error+'</div>');
+                      }
+                      console.log(data.error);
+
+                  } else if (data.hasOwnProperty('result')) {
+                      $("#add-form").replaceWith( '<div class="alert alert-success" role="alert"> \
+                      '+data.result+'</div><p><a href="/control/" class="btn btn-primary btn-back" role="button">'+data.button+'</a></p>');
+                  }
+              },
+              error: function (data) {
+                console.log(data)
+              },
+              cache: false,
+              contentType: false,
+              processData: false
+          });
+     });
+
 $(document).on("submit","#material-edit-form", function (e) {
           e.preventDefault();
           $('#id_isbn_hidden').val($('#isbn').val());

@@ -37,6 +37,13 @@ class ProfileForm(forms.Form):
 	)
 
 
+class CollectionForm(forms.Form):
+	title = forms.CharField(
+		required=True, label=u'Введите название коллекции',
+		widget=forms.TextInput(attrs={'class': 'form-control', 'maxlength': 50})
+	)
+
+
 class LoginForm(forms.Form):
 	email = forms.EmailField(
 		required=True,

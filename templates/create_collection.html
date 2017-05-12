@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="sort-menu">
+
+    {% if user.is_superuser %}
+      <a href="/control" class="btn btn-primary admin-panel" role="button">Панель администратора</a>
+    {% endif %}
+    <a href="/logout" class="btn btn-success admin-panel" role="button">Выход</a>
+
+  </div>
+
+  <div class="jumbotron custom-jumbotron reg-container-2">
+    <h2>Создание коллекции</h2>
+    <form id="collection-form" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% for f in form.visible_fields %}
+        <div class="form-group {% if f.errors %}has-error{% endif %}" >
+          <label for="{{ f.id_for_label }}">{{ f.label }} </label>
+            {{ f }}
+        </div>
+      {% endfor %}
+        <button id="btn-collection-create" type="submit" class="btn btn-primary">Создать коллекцию</button><br>
+      {% if error %}
+        <br>
+        <div class="alert alert-danger" role ="alert" id="field-error">{{ error }}</div>
+      {% endif %}
+    </form>
+  </div>
+
+{%endblock %}

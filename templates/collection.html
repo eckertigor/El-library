@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="sort-menu">
+
+    {% if user.is_superuser %}
+      <a href="/control" class="btn btn-primary admin-panel" role="button">Панель администратора</a>
+    {% endif %}
+    <a href="/logout" class="btn btn-success admin-panel" role="button">Выход</a>
+
+  </div>
+
+  <div class="jumbotron custom-jumbotron reg-container-2">
+    <h3>Коллекция {{ collection.title }}</h3>
+    {% if not collection.materials == None  %}
+      {% for material in collection.materials.all %}
+          <ul class="list-group list-all-materials" id="{{ material.id }}">
+            <li class="list-group-item">
+              <a href="/material/{{ material.id }}"><b>{{ material.title }}<b></a>
+            </li>
+          </ul>
+      {% endfor %}
+    {% else %}
+      <p> У вас пока нет материалов в данной коллекции </p>
+    {% endif %}
+  </div>
+
+{%endblock %}
