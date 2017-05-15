@@ -135,6 +135,7 @@ $(document).ready(function() {
           });
      });
 });
+
 $(document).ready(function() {
   $.ajax({
       url: '/rubrik/',
@@ -181,7 +182,6 @@ $(document).ready(function() {
 
 
 $(document).ready(function() {
-  console.log(tree);
   $('#id_rubrik').click(function(e) {
     e.preventDefault();
 
@@ -485,6 +485,105 @@ $(document).on("click", "#material-delete", function(e){
                contentType: false,
                processData: false
            });
+});
+
+$(document).on("click", "#add_to", function(e){
+           e.preventDefault();
+           var material_id = $('#material_id').val();
+           var collection_id = $(event.target).attr('colid')
+           $.ajax({
+               url: '/addcollection/'+material_id+'/'+collection_id+'/',
+               type: 'POST',
+               data: {'material_id' : material_id, 'collection_id': collection_id},
+               async: false,
+               success: function (data) {
+                  $('#myModal').modal('toggle');
+                  $('#add_to_col').replaceWith( '<button id="add_to_col" type="button" \
+                  class="btn btn-success admin-panel"  \
+                  data-toggle="modal" data-target="#myModal">Добавлено в коллекцию</button>');
+               },
+               error: function (data) {
+                 console.log(data)
+               },
+               cache: false,
+               contentType: false,
+               processData: false
+           });
+});
+
+$(document).on("click", "#remove_from", function(e){
+           e.preventDefault();
+           var material_id = $(event.target).attr('matid');
+           var collection_id = $('#collection_id').val();
+           $.ajax({
+               url: '/delfrom/'+material_id+'/'+collection_id+'/',
+               type: 'POST',
+               data: {'material_id' : material_id, 'collection_id': collection_id},
+               async: false,
+               success: function (data) {
+                  $(event.target).replaceWith( '<button type="button" \
+                  class="btn btn-danger admin-edit control-item"  \
+                  data-toggle="modal" data-target="#myModal">Удалено</button>');
+               },
+               error: function (data) {
+                 console.log(data)
+               },
+               cache: false,
+               contentType: false,
+               processData: false
+           });
+});
+
+$(document).on("click", "#approve", function(e){
+           e.preventDefault();
+           var material_id = $(event.target).attr('matid');
+           $.ajax({
+               url: '/control/materials/approve/'+material_id+'/',
+               type: 'POST',
+               data: {'material_id' : material_id},
+               async: false,
+               success: function (data) {
+                  $(event.target).replaceWith( '<button type="button" \
+                  class="btn btn-sucess admin-edit control-item"  \
+                  data-toggle="modal" data-target="#myModal">Одобрено</button>');
+               },
+               error: function (data) {
+                 console.log(data)
+               },
+               cache: false,
+               contentType: false,
+               processData: false
+           });
+});
+
+$(document).on("click", "#unapprove", function(e){
+           e.preventDefault();
+            $(event.target).replaceWith( '<button type="button" \
+            class="btn btn-sucess admin-edit control-item"  \
+            data-toggle="modal" data-target="#myModal">Отклонено</button>');
+});
+
+$(document).on("click", "#block_user", function(e){
+           e.preventDefault();
+           var user_id = $(event.target).attr('userid');
+           $.ajax({
+               url: '/control/block/user/'+user_id+'/',
+               type: 'POST',
+               data: {'user_id' : user_id},
+               async: false,
+               success: function (data) {
+                   $(event.target).replaceWith( '<button type="button" \
+                   class="btn btn-danger admin-edit control-item"  \
+                   data-toggle="modal" data-target="#myModal">Заблокирован</button>');
+               },
+               error: function (data) {
+                 console.log(data)
+               },
+               cache: false,
+               contentType: false,
+               processData: false
+           });
+
 });
 
 $(document).on("click", "#material-restore", function(e){

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="sort-menu">
+
+  {% if user.is_superuser %}
+    <a href="/control" class="btn btn-primary admin-panel" role="button">Панель администратора</a>
+  {% endif %}
+  <a href="/logout" class="btn btn-success admin-panel" role="button">Выход</a>
+
+</div>
+
+<div class="jumbotron custom-jumbotron reg-container-2">
+  <a href="{% url 'control_materials_edit' %}" class="btn btn-success panel-lk-admin" role="button">Управление материалами</a>
+  <a href="{% url 'control_users' %}" class="btn btn-success panel-lk-admin" role="button">Управление пользователями</a>
+  <a href="{% url 'control_rubrik' %}" class="btn btn-success panel-lk-admin" role="button">Управление рубриками</a>
+  <a href="" class="btn btn-success panel-lk-admin" role="button">Управление тегами</a>
+  <a href="" class="btn btn-success panel-lk-admin" role="button">Управление доступом</a>
+  <a href="" class="btn btn-success panel-lk-admin" role="button">Модерация тегов</a>
+  <a href="{% url 'control_materials' %}" class="btn btn-success panel-lk-admin" role="button">Модерация материалов</a>
+
+</div>
+
+{%endblock %}

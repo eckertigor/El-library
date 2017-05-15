@@ -4,7 +4,12 @@
 	 <div class="jumbotron custom-jumbotron-materials">
 			 	<div class="panel panel-default">
 				  <div class="panel-body">
-							<b>Название материала</b> <h4>{{ material.title }} </h4>
+							<b>Название материала</b>
+							{% if user.is_authenticated %}
+								<button id="add_to_col" type="button" class="btn btn-warning admin-panel" data-toggle="modal" data-target="#myModal">
+										Добавить в коллекцию</button>
+							{% endif %}
+							<h4>{{ material.title }} </h4>
               <b>Автор</b><h4>
                 <a href="/search/autor/{{ material.author }}" class="title-link"> {{ material.author }}</a></h4>
 							<b>Тип материала</b> <h4>{{ material.get_type_material_display }} </h4>
@@ -23,7 +28,36 @@
                       {% endfor %}
                 </h4>
 							<b>Описание</b> <h4>{{ material.description }} </h4>
+							<!-- Modal -->
+							<div id="myModal" class="modal fade" role="dialog">
+							  <div class="modal-dialog">
 
+							    <!-- Modal content-->
+							    <div class="modal-content">
+							      <div class="modal-header">
+							        <button type="button" class="close" data-dismiss="modal">&times;</button>
+							        <h4 class="modal-title">Выберите в какую коллекцию добавить материал</h4>
+							      </div>
+							      <div class="modal-body">
+											{% for collection in collections %}
+												<ul class="list-group list-all-materials" id="{{ collection.id }}">
+													<li class="list-group-item">
+														<input type="hidden" id="collection_id" value="{{ collection.id }}">
+														<input type="hidden" id="material_id" value="{{ material.id }}">
+														<a href="/collections/{{ collection.id }}"><b>{{ collection.title }}<b></a>
+														<a id="add_to" colid="{{ collection.id }}"class="btn btn-success admin-edit control-item"
+																			role="button">Выбрать коллекцию</a>
+													</li>
+												</ul>
+											{% endfor %}
+							      </div>
+							      <div class="modal-footer">
+							        <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+							      </div>
+							    </div>
+
+							  </div>
+							</div>
            <span id="avgrat"> {{ film.rating }} </span> <img class="star-rating-page"
                     src="/uploads/star.png"></p>
 				  </div>

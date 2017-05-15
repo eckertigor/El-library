@@ -20,6 +20,10 @@ def material(request, material_id):
         material = Material.objects.get(id=material_id)
     except Material.DoesNotExist:
         raise Http404
+    if request.user.is_authenticated():
+        collections = Collection.objects.filter(user=request.user)
+        return render(request, 'material.html', {'material': material,
+                                            'collections': collections})
     return render(request, 'material.html', {'material': material})
 
 
@@ -31,10 +35,32 @@ def my(request):
         return redirect('/login/')
 
 
+def add_to_collection(request, material_id, collection_id):
+    if request.method == 'POST':
+        response_data = {}
+        material = Material.objects.get(id=material_id)
+        collection = Collection.objects.get(id=collection_id)
+        collection.materials.add(material)
+        response_data['result'] = 'success'
+        return JsonResponse(response_data)
+
+
+def del_from_collection(request, material_id, collection_id):
+    if request.method == 'POST':
+        response_data = {}
+        material = Material.objects.get(id=material_id)
+        collection = Collection.objects.get(id=collection_id)
+        if collection.user == request.user:
+            collection.materials.remove(material)
+            response_data['result'] = 'success'
+            return JsonResponse(response_data)
+
+
 def collections(request):
     if request.user.is_authenticated():
-        collections = Collection.objects.filter(user=request.user)
-        return render(request, 'collections.html', {'collections': collections})
+        if request.method == 'GET':
+            collections = Collection.objects.filter(user=request.user)
+            return render(request, 'collections.html', {'collections': collections})
     else:
         return redirect('/login/')
 
@@ -187,7 +213,10 @@ def edit_material(request, material_id):
                 material.tags.add(*existing_tag)
                 material.save()
                 response_data['result'] = u'Материал успешно изменен'
-                response_data['button'] = u'Вернуться в личный кабинет?'
+                if request.user.is_superuser:
+                    response_data['button'] = u'Вернуться в панель управления?'
+                else:
+                    response_data['button'] = u'Вернуться в личный кабинет?'
                 return JsonResponse(response_data)
             else:
                 response_data['error'] = u'Проверьте правильность введеных данных'
@@ -268,6 +297,65 @@ def lk(request):
         return render(request, 'lk.html')
     else:
         return redirect('/login/')
+
+
+def control(request):
+    if request.user.is_superuser:
+        return render(request, 'control.html')
+    else:
+        return redirect('/login/')
+
+
+def control_materials(request):
+    if request.user.is_superuser:
+        try:
+            materials = Material.objects.filter(is_approved=0)
+        except Materil.DoesNotExist:
+            materials = {}
+        return render(request, 'control_materials.html', {'materials': materials})
+    else:
+        return redirect('/')
+
+
+def control_approve_material(request, material_id):
+    if request.user.is_superuser:
+        material = Material.objects.get(id=material_id)
+        material.is_approved = 1
+        material.save()
+        response_data = {}
+        response_data['result'] = 'success'
+        return JsonResponse(response_data)
+
+
+def control_users(request):
+    if request.user.is_superuser:
+        if request.method == 'POST':
+            user = User.objects.get(id=user_id)
+            user.is_activate = False
+            user.save()
+            response_data['result'] = 'success'
+            return JsonResponse(response_data)
+        elif request.method == 'GET':
+            users = User.objects.all()
+            return render(request, 'control_users.html', {'users':users})
+
+
+def control_rubrik(request):
+    if request.user.is_superuser:
+        if request.method == 'GET':
+            rubriks = Rubrik.objects.all()
+            return render(request, 'control_rubrik.html', {'rubriks': rubriks})
+
+
+def control_block_user(request, user_id):
+    if request.user.is_superuser:
+        if request.method == 'POST':
+            response_data = {}
+            user = User.objects.get(id=user_id)
+            user.is_active = False
+            user.save()
+            response_data['result'] = 'success'
+            return JsonResponse(response_data)
 
 
 def logout(request):

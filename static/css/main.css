@@ -144,6 +144,19 @@
   margin-top: 15px !important;
 }
 
+.panel-lk-admin {
+  width: 33%;
+  display: inline-block;
+  padding-top: 5px!important;
+  background-color: #5cb85c;
+  text-align: center;
+  font-family: 'Roboto Black', sans-serif;
+  font-size: 28px;
+  padding-top: 5px !important;
+  padding-bottom: 5px !important;
+  margin-top: 15px !important;
+}
+
 .panel-lk-col {
   width: 33%;
   display: inline-block;
@@ -151,7 +164,7 @@
   background-color: #337ab7;
   text-align: center;
   font-family: 'Roboto Black', sans-serif;
-  font-size: 25px;
+  font-size: 17px;
   word-wrap:break-word;
   padding-top: 5px !important;
   padding-bottom: 5px !important;

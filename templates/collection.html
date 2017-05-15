@@ -16,6 +16,9 @@
           <ul class="list-group list-all-materials" id="{{ material.id }}">
             <li class="list-group-item">
               <a href="/material/{{ material.id }}"><b>{{ material.title }}<b></a>
+              <a id="remove_from" matid="{{ material.id }}" class="btn btn-warning admin-edit control-item"
+  											role="button">Удалить из коллекции</a>
+              <input type="hidden" id="collection_id" value="{{ collection.id }}">
             </li>
           </ul>
       {% endfor %}

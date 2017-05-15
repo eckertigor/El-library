@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="sort-menu">
+  {% if user.is_superuser %}
+    <a href="/control" class="btn btn-primary admin-panel" role="button">Панель администратора</a>
+  {% endif %}
+  <a href="/logout" class="btn btn-success admin-panel" role="button">Выход</a>
+</div>
+<div class="jumbotron custom-jumbotron my-container">
+	<div class="active">
+		{% if rubriks  %}
+      <p>Список рубрик для модерации</p>
+			{% for rubrik in rubriks %}
+      {% if rubrik.is_approved == 0 %}
+  				<ul class="list-group list-all-materials" id="{{ material.id }}">
+  				  <li class="list-group-item">
+  						<a href=""><b>{{ rubrik.name }}<b></a>
+
+                <a id="approve_rubrik" userid="{{ rubrik.id }}" class="btn btn-warning admin-edit control-item"
+  											role="button">Одобрить</a>
+              {% endif %}
+  				  </li>
+  				</ul>
+			{% endfor %}
+		{% else %}
+		<div class="alert alert-success not-reg" role="alert">Список рубрик пуст</div>
+		{% endif %}
+	</div>
+</div>
+{%endblock %}
