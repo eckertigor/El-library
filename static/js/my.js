@@ -137,12 +137,14 @@ $(document).ready(function() {
 });
 
 $(document).ready(function() {
+  var par_arr = {};
   $.ajax({
       url: '/rubrik/',
       type: 'GET',
       async: false,
       data: {},
       success: function (data) {
+        par_arr = {};
         for (var i = 0; i < data.length; i++) {
           if (data[i].fields.parent_id == null) {
             data_obj = new Object();
@@ -151,10 +153,61 @@ $(document).ready(function() {
           } else {
             data_obj = new Object();
             data_obj.text = data[i].fields.name;
-            if (!tree[data[i].fields.parent_id].nodes) {
+            data_obj.parent_id = data[i].fields.parent_id;
+            data_obj.id = data[i].pk;
+            if (tree[data[i].fields.parent_id] == undefined) {
+              var parent_id = 0;
+              var index = data[i].fields.parent_id;
+              var path = [];
+              var ind = 0;
+              path.push(index);
+              while (parent_id != undefined) {
+                parent_id = par_arr[index];
+                path.unshift(parent_id);
+                index = parent_id;
+              }
+              var a;
+
+              a = tree[path[1]].nodes;
+              for (var n = 2; n < path.length; n++) {
+                var n_val = path[n];
+                for (var x = 0; x < a.length; x++) {
+                  if (a[x].id == n_val) {
+                    if (a[x].nodes == undefined) {
+                      a[x].nodes = [];
+                    }
+                    a = a[x].nodes;
+                    break;
+                  }
+                }
+              }
+              a.push(data_obj);
+              par_arr[data_obj.id] = data_obj.parent_id;
+              // console.log(a);
+              // var parent_id = data[i].fields.parent_id;
+              // var tree_copy = tree;
+              // var node = 0;
+              // tree_copy =  JSON.parse(JSON.stringify(tree));
+              // for (var i=0; i < tree_copy.length; i++) {
+              //   var tree_node = tree_copy[i];
+              //   // if (tree_node.nodes != undefined) {
+              //   //   for (var n=0; n < tree_node.nodes.length; n++) {
+              //   //     if (tree_node.nodes[n].parent_id == parent_id) {
+              //   //       tree[i].nodes[n].nodes = [];
+              //   //       tree[i].nodes[n].nodes.push(data_obj);
+              //   //       node = parent_id;
+              //   //     }
+              //   //   }
+              //   // }
+              //   console.log(tree_node[i]);
+              // }
+            } else {
+              if (tree[data[i].fields.parent_id].nodes == undefined) {
                 tree[data[i].fields.parent_id].nodes = [];
+              }
+              tree[data[i].fields.parent_id].nodes.push(data_obj);
+              par_arr[data_obj.id] = data[i].fields.parent_id;
             }
-            tree[data[i].fields.parent_id].nodes.push(data_obj);
           }
         }
 
@@ -296,6 +349,7 @@ $(document).ready(function() {
 $(document).on("submit","#add-form", function (e) {
           e.preventDefault();
           $('#id_isbn_hidden').val($('#isbn').val());
+          console.log('send');
           var formData = new FormData($('#add-form')[0]);
           $.ajax({
               url: '/control/add/',
@@ -534,18 +588,127 @@ $(document).on("click", "#remove_from", function(e){
            });
 });
 
+$(document).on("click", "#edit_rubrik", function(e){
+    e.preventDefault();
+    var rubrik_id = $(event.target).attr('rubrikid');
+    var text = $("a[rubr="+rubrik_id+"]").text();
+    $(".list-group-item[rubrikid="+rubrik_id+"]").replaceWith('<li rubrikid="'+rubrik_id+'" \
+        class="list-group-item list-rubrik"> <input class="form-control rubrik-edit" id="rubrik_title" \
+        maxlength="50" rubrikid="'+rubrik_id+'" name="title" required="true" type="text" \
+          value="'+text+'"> \
+          <a id="save_edit" rubrikid="'+rubrik_id+'" \
+          class="btn btn-primary admin-edit control-item-rub" \
+                  role="button">Сохранить</a> \
+      </li>');
+});
+
+$(document).on("click", "#save_edit", function(e){
+  e.preventDefault();
+  var rubrik_id = $(event.target).attr('rubrikid');
+  var text = $("input[rubrikid="+rubrik_id+"]").val();
+  var request = new FormData();
+  request.append('rubrik_id', rubrik_id);
+  request.append('name', text);
+  $.ajax({
+      url: '/control/rubrikedit/',
+      type: 'POST',
+      contentType: false,
+      data: request,
+      async: false,
+      success: function (data) {
+        $(".list-group-item.list-rubrik[rubrikid="+rubrik_id+"]").replaceWith('<li rubrikid="'+rubrik_id+'" \
+            class="list-group-item"> <a rubr="'+rubrik_id+'" href=""><b>'+text+'<b></a> \
+              <a id="edit_rubrik" rubrikid="'+rubrik_id+'" \
+              class="btn btn-success admin-edit control-item" \
+                      role="button">Редактировать</a> \
+          </li>');
+      },
+      error: function (data) {
+        console.log('error');
+      },
+      cache: false,
+      processData: false
+  });
+});
+
+$(document).on("click", "#approve_rubrik", function(e){
+           e.preventDefault();
+           var rubrik_id = $(event.target).attr('rubrikid');
+           var request = new FormData();
+           request.append('rubrik_id', rubrik_id);
+           $.ajax({
+               url: '/control/rubrik/',
+               type: 'POST',
+               contentType: false,
+               data: request,
+               async: false,
+               success: function (data) {
+                 $(".btn.btn-warning.admin-edit.control-item[rubrikid="+rubrik_id+"]").replaceWith('<button type="button" \
+                 id="approve_rubrik" rubrikid="'+rubrik_id+'" class="btn btn-success admin-edit control-item"  \
+                 data-toggle="modal" data-target="#myModal">Одобрено</button>');
+               },
+               error: function (data) {
+                 console.log('error');
+               },
+               cache: false,
+               processData: false
+           });
+});
+
+
 $(document).on("click", "#approve", function(e){
            e.preventDefault();
            var material_id = $(event.target).attr('matid');
+           var status = $(event.target).attr('status');
            $.ajax({
-               url: '/control/materials/approve/'+material_id+'/',
+               url: '/control/materials/approve/'+material_id+'/'+status+'/',
                type: 'POST',
                data: {'material_id' : material_id},
                async: false,
                success: function (data) {
-                  $(event.target).replaceWith( '<button type="button" \
-                  class="btn btn-sucess admin-edit control-item"  \
-                  data-toggle="modal" data-target="#myModal">Одобрено</button>');
+                  var status = $(event.target).attr('status');
+                  if (status == "1") {
+                    status = "0"
+                  }
+                  else {
+                    status = "1"
+                  }
+                  var matid = $(event.target).attr('matid');
+                  if ($(event.target).attr('class') == 'btn btn-success admin-panel') {
+                    $(".btn.btn-default.admin-panel").replaceWith('<button type="button" \
+                    id="approve" matid="'+matid+'" status="'+status+'" class="btn btn-warning admin-panel"  \
+                    >Отклонить</button>');
+                    $(event.target).replaceWith( '<button type="button" \
+                    id="approve" matid="'+matid+'" status="'+status+'" class="btn btn-default admin-panel"  \
+                    data-toggle="modal" data-target="#myModal">Одобрено</button>');
+
+                  }
+                  else if ($(event.target).attr('class') == 'btn btn-warning admin-panel') {
+                    $(".btn.btn-default.admin-panel").replaceWith('<button type="button" \
+                    id="approve" matid="'+matid+'" status="'+status+'" class="btn btn-success admin-panel"  \
+                    >Одобрить</button>');
+                    $(event.target).replaceWith( '<button type="button" \
+                    id="approve" matid="'+matid+'" status="'+status+'" class="btn btn-default admin-panel"  \
+                    data-toggle="modal" data-target="#myModal">Отклонено</button>');
+                  }
+                  else if ($(event.target).attr('class') == 'btn btn-success admin-edit control-item') {
+                    var matId = $(event.target).attr('matid');
+                    $(".btn.btn-default.admin-edit.control-item[matid="+matId+"]").replaceWith('<button type="button" \
+                    id="approve" matid="'+matid+'" status="'+status+'" class="btn btn-warning admin-edit control-item"  \
+                    data-toggle="modal" data-target="#myModal">Отклонить</button>');
+                    $(event.target).replaceWith( '<button type="button" \
+                    id="approve" matid="'+matid+'" status="'+status+'" class="btn btn-default admin-edit control-item"  \
+                    data-toggle="modal" data-target="#myModal">Одобрено</button>');
+                  }
+                  else if ($(event.target).attr('class') == 'btn btn-warning admin-edit control-item') {
+                    var matId = $(event.target).attr('matid');
+                    $(".btn.btn-default.admin-edit.control-item[matid="+matId+"]").replaceWith('<button type="button" \
+                    id="approve" matid="'+matid+'" status="'+status+'" class="btn btn-success admin-edit control-item"  \
+                    data-toggle="modal" data-target="#myModal">Одобрить</button>');
+                    $(event.target).replaceWith( '<button type="button" \
+                    id="approve" matid="'+matid+'" status="'+status+'" class="btn btn-default admin-edit control-item"  \
+                    data-toggle="modal" data-target="#myModal">Отклонено</button>');
+                  }
                },
                error: function (data) {
                  console.log(data)
@@ -566,15 +729,28 @@ $(document).on("click", "#unapprove", function(e){
 $(document).on("click", "#block_user", function(e){
            e.preventDefault();
            var user_id = $(event.target).attr('userid');
+           var type = $(event.target).attr('typeb');
+           if (type == "1") {
+             type = "0";
+           }
+           else {
+             type = "1";
+           }
            $.ajax({
-               url: '/control/block/user/'+user_id+'/',
+               url: '/control/block/user/'+user_id+'/'+type+'/',
                type: 'POST',
                data: {'user_id' : user_id},
                async: false,
                success: function (data) {
-                   $(event.target).replaceWith( '<button type="button" \
-                   class="btn btn-danger admin-edit control-item"  \
-                   data-toggle="modal" data-target="#myModal">Заблокирован</button>');
+                  if ($(event.target).attr('typeb') == '0') {
+                     $(event.target).replaceWith( '<button type="button" \
+                     id="block_user" typeb="'+type+'" userid="'+user_id+'" class="btn btn-danger admin-edit control-item"  \
+                     data-toggle="modal" data-target="#myModal">Разблокировать</button>');
+                  } else {
+                    $(event.target).replaceWith( '<button type="button" \
+                    id="block_user" typeb="'+type+'" userid="'+user_id+'" class="btn btn-warning admin-edit control-item"  \
+                    data-toggle="modal" data-target="#myModal">Заблокировать</button>');
+                  }
                },
                error: function (data) {
                  console.log(data)
@@ -609,32 +785,6 @@ $(document).on("click", "#material-restore", function(e){
            });
 });
 
-
- $(document).on("click", "#film-restore", function(e){
-           e.preventDefault();
-           var film_id = $('#film_id').val();
-           var film_title = $('#hide-title').val();
-           $.ajax({
-               url: '/control/restore/'+film_id+'',
-               type: 'POST',
-               data: {'film_id' : $('#film_id').val()},
-               async: false,
-               success: function (data) {
-                   if(data.hasOwnProperty('result')) {
-                     $("#title").replaceWith('<h2><b>'+film_title+'</b></h2>');
-                     $("#film-restore").replaceWith('<a href="/control/delete/" \
-                                class="btn btn-danger admin-edit" role="button" \
-                                id="film-delete">Удалить</a>');
-                   }
-               },
-               error: function (data) {
-                 console.log(data)
-               },
-               cache: false,
-               contentType: false,
-               processData: false
-           });
-      });
 
 $(function() {
   $("#rating_star").codexworld_rating_widget({

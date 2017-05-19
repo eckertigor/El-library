@@ -8,6 +8,28 @@
 							{% if user.is_authenticated %}
 								<button id="add_to_col" type="button" class="btn btn-warning admin-panel" data-toggle="modal" data-target="#myModal">
 										Добавить в коллекцию</button>
+									{% if material.user == user or user.is_superuser %}
+										<a href="/lk/edit/{{ material.id }}" class="btn btn-warning admin-panel"
+															role="button">Редактировать</a>
+									{% endif %}
+									{% if material.user == user or user.is_superuser %}
+										{% if material.is_approved == 0 and material.is_app_changed = 0 %}
+											<a id="approve" status="0" matid="{{ material.id }}" class="btn btn-warning admin-panel"
+																role="button">Отклонить</a>
+											<a id="approve" status="1" matid="{{ material.id }}" class="btn btn-success admin-panel"
+																role="button">Одобрить</a>
+										{% elif material.is_approved == 1 and material.is_app_changed = 1 %}
+											<a id="approve" status="0" matid="{{ material.id }}" class="btn btn-warning admin-panel"
+																role="button">Отклонить</a>
+											<a id="approve" status="1" matid="{{ material.id }}" class="btn btn-default admin-panel"
+																role="button">Одобрено</a>
+										{% elif material.is_approved == 0 and material.is_app_changed = 1 %}
+											<a id="approve" status="0" matid="{{ material.id }}" class="btn btn-default admin-panel"
+																role="button">Отклонено</a>
+											<a id="approve" status="1" matid="{{ material.id }}" class="btn btn-success admin-panel"
+																role="button">Одобрить</a>
+										{% endif %}
+									{% endif %}
 							{% endif %}
 							<h4>{{ material.title }} </h4>
               <b>Автор</b><h4>

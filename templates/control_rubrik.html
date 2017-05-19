@@ -12,16 +12,29 @@
 		{% if rubriks  %}
       <p>Список рубрик для модерации</p>
 			{% for rubrik in rubriks %}
-      {% if rubrik.is_approved == 0 %}
+        {% if rubrik.is_approved == 0 %}
   				<ul class="list-group list-all-materials" id="{{ material.id }}">
   				  <li class="list-group-item">
   						<a href=""><b>{{ rubrik.name }}<b></a>
 
-                <a id="approve_rubrik" userid="{{ rubrik.id }}" class="btn btn-warning admin-edit control-item"
+                <a id="approve_rubrik" rubrikid="{{ rubrik.id }}" class="btn btn-warning admin-edit control-item"
   											role="button">Одобрить</a>
-              {% endif %}
   				  </li>
   				</ul>
+        {% endif %}
+			{% endfor %}
+
+			{% for rubrik in rubriks %}
+        {% if rubrik.is_approved == 1 %}
+  				<ul class="list-group list-all-materials" id="{{ material.id }}">
+  				  <li rubrikid="{{ rubrik.id }}" class="list-group-item">
+  						<a rubr="{{ rubrik.id }}" href=""><b>{{ rubrik.name }}<b></a>
+
+                <a id="edit_rubrik" rubrikid="{{ rubrik.id }}" class="btn btn-success admin-edit control-item"
+  											role="button">Редактировать</a>
+  				  </li>
+  				</ul>
+        {% endif %}
 			{% endfor %}
 		{% else %}
 		<div class="alert alert-success not-reg" role="alert">Список рубрик пуст</div>

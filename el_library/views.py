@@ -284,8 +284,8 @@ def add_material(request):
             response_data['button'] = u'Вернуться в панель управления?'
             return JsonResponse(response_data)
         else:
-            # response_data['error'] = materialForm.errors
-            response_data['error'] = u'Проверьте правильность введенных данных'
+            response_data['error'] = materialForm.errors
+            # response_data['error'] = u'Проверьте правильность введенных данных'
             return JsonResponse(response_data)
     else:
         form = MaterialForm()
@@ -309,7 +309,7 @@ def control(request):
 def control_materials(request):
     if request.user.is_superuser:
         try:
-            materials = Material.objects.filter(is_approved=0)
+            materials = Material.objects.all()
         except Materil.DoesNotExist:
             materials = {}
         return render(request, 'control_materials.html', {'materials': materials})
@@ -317,10 +317,11 @@ def control_materials(request):
         return redirect('/')
 
 
-def control_approve_material(request, material_id):
+def control_approve_material(request, material_id, status):
     if request.user.is_superuser:
         material = Material.objects.get(id=material_id)
-        material.is_approved = 1
+        material.is_approved = int(status)
+        material.is_app_changed = 1
         material.save()
         response_data = {}
         response_data['result'] = 'success'
@@ -345,14 +346,38 @@ def control_rubrik(request):
         if request.method == 'GET':
             rubriks = Rubrik.objects.all()
             return render(request, 'control_rubrik.html', {'rubriks': rubriks})
+        elif request.method == 'POST':
+            response_data = {}
+            rubrik_id = int(request.POST['rubrik_id'])
+            rubrik = Rubrik.objects.get(id=rubrik_id)
+            rubrik.is_approved = 1
+            rubrik.save()
+            response_data['result'] = 'success'
+            return JsonResponse(response_data)
 
 
-def control_block_user(request, user_id):
+def control_rubrik_edit(request):
+    if request.user.is_superuser:
+        if request.method == 'POST':
+            response_data = {}
+            rubrik_id = int(request.POST['rubrik_id'])
+            text = request.POST['name']
+            rubrik = Rubrik.objects.get(id=rubrik_id)
+            rubrik.name = text
+            rubrik.save()
+            response_data['result'] = 'success'
+            return JsonResponse(response_data)
+
+
+def control_block_user(request, user_id, type_b):
     if request.user.is_superuser:
         if request.method == 'POST':
             response_data = {}
             user = User.objects.get(id=user_id)
-            user.is_active = False
+            if type_b == '1':
+                user.is_active = False
+            else:
+                user.is_active = True
             user.save()
             response_data['result'] = 'success'
             return JsonResponse(response_data)

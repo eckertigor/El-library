@@ -14,13 +14,13 @@
 			{% for user in users %}
   				<ul class="list-group list-all-materials" id="{{ material.id }}">
   				  <li class="list-group-item">
-  						<a href=""><b>{{ user.username }}<b></a>
+  						<b>{{ user.username }}<b></a>
   						{% if user.is_active == True %}
-                <a id="block_user" userid="{{ user.id }}" class="btn btn-warning admin-edit control-item"
+                <a id="block_user" typeb="0" userid="{{ user.id }}" class="btn btn-warning admin-edit control-item"
   											role="button">Заблокировать</a>
               {% else %}
-                <a id="block_user" userid="{{ user.id }}" class="btn btn-danger admin-edit control-item"
-                        role="button">Заблокирован</a>
+                <a id="block_user" typeb="1" userid="{{ user.id }}" class="btn btn-danger admin-edit control-item"
+                        role="button">Разблокировать</a>
               {% endif %}
   				  </li>
   				</ul>

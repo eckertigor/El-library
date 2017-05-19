@@ -41,6 +41,7 @@ class Material(models.Model):
     tags = models.ManyToManyField(Tags)
     document = models.FileField(default=0)
     is_approved = models.IntegerField(default=0)
+    is_app_changed = models.IntegerField(default=0)
     is_deleted = models.IntegerField(default=0)
 
 

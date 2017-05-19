@@ -12,15 +12,45 @@
 		{% if materials  %}
       <p>Материалы, ожидающие модерадию</p>
 			{% for material in materials %}
+        {% if material.is_app_changed == 0 %}
   				<ul class="list-group list-all-materials" id="{{ material.id }}">
   				  <li class="list-group-item">
   						<a href="/material/{{ material.id }}"><b>{{ material.title }}<b></a>
-  						<a id="unapprove" matid="{{ material.id }}" class="btn btn-warning admin-edit control-item"
+  						<a id="approve" status="0" matid="{{ material.id }}" class="btn btn-warning admin-edit control-item"
   											role="button">Отклонить</a>
-              <a id="approve" matid="{{ material.id }}" class="btn btn-success admin-edit control-item"
+              <a id="approve" status="1" matid="{{ material.id }}" class="btn btn-success admin-edit control-item"
                         role="button">Одобрить</a>
   				  </li>
   				</ul>
+        {% endif %}
+			{% endfor %}
+      <p>Материалы, не прошедшие модерацию</p>
+			{% for material in materials %}
+        {% if material.is_app_changed == 1 and material.is_approved == 0 %}
+  				<ul class="list-group list-all-materials" id="{{ material.id }}">
+  				  <li class="list-group-item">
+  						<a href="/material/{{ material.id }}"><b>{{ material.title }}<b></a>
+  						<a id="approve" status="0" matid="{{ material.id }}" class="btn btn-default admin-edit control-item"
+  											role="button">Отклонено</a>
+              <a id="approve" status="1" matid="{{ material.id }}" class="btn btn-success admin-edit control-item"
+                        role="button">Одобрить</a>
+  				  </li>
+  				</ul>
+        {% endif %}
+			{% endfor %}
+      <p>Материалы, успешно прошедшие модерадию</p>
+			{% for material in materials %}
+        {% if material.is_app_changed == 1 and material.is_approved == 1 %}
+  				<ul class="list-group list-all-materials" id="{{ material.id }}">
+  				  <li class="list-group-item">
+  						<a href="/material/{{ material.id }}"><b>{{ material.title }}<b></a>
+  						<a id="approve" status="0" matid="{{ material.id }}" class="btn btn-warning admin-edit control-item"
+  											role="button">Отклонить</a>
+              <a id="approve" status="1" matid="{{ material.id }}" class="btn btn-default admin-edit control-item"
+                        role="button">Одобрено</a>
+  				  </li>
+  				</ul>
+        {% endif %}
 			{% endfor %}
 		{% else %}
 		<div class="alert alert-success not-reg" role="alert">На модерации пока нет материалов</div>

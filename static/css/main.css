@@ -23,6 +23,17 @@
   width: 300px;
 }
 
+.list-rubrik {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+.rubrik-edit {
+  display: inline;
+  width: 450px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
 .title-link {
   color: #333;
 }
@@ -212,6 +223,12 @@
 .control-item {
   float: right!important;
   margin-top: -6px;
+  margin-left: 5px;
+}
+
+.control-item-rub {
+  float: right!important;
+  margin-top: 0px;
   margin-left: 5px;
 }
 
