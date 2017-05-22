@@ -11,7 +11,7 @@
 
   <div class="jumbotron custom-jumbotron reg-container-2">
     <h3>Коллекция {{ collection.title }}</h3>
-    {% if not collection.materials == None  %}
+    {% if collection.materials.exists  %}
       {% for material in collection.materials.all %}
           <ul class="list-group list-all-materials" id="{{ material.id }}">
             <li class="list-group-item">
@@ -23,7 +23,7 @@
           </ul>
       {% endfor %}
     {% else %}
-      <p> У вас пока нет материалов в данной коллекции </p>
+      <div class="alert alert-danger" role="alert" id="field-error">В этой коллекции пока нет материалов</div>
     {% endif %}
   </div>
 

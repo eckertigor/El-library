@@ -23,7 +23,7 @@
   				</ul>
         {% endif %}
 			{% endfor %}
-
+      <p>Список активных рубрик</p>
 			{% for rubrik in rubriks %}
         {% if rubrik.is_approved == 1 %}
   				<ul class="list-group list-all-materials" id="{{ material.id }}">

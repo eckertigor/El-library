@@ -54,6 +54,14 @@ class LoginForm(forms.Form):
 	)
 
 
+class AccessForm(forms.Form):
+	name = forms.CharField(
+		required=True, label=u'Название группы доступа',
+		widget=forms.TextInput(attrs={'class': 'form-control', 'required': 'true', 'maxlength': 50})
+	)
+	users = forms.CharField(widget=forms.HiddenInput())
+
+
 class MaterialForm(forms.Form):
 	title = forms.CharField(
 		required=True, label=u'Название материала',

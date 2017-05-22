@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="sort-menu">
+
+    {% if user.is_superuser %}
+      <a href="/control" class="btn btn-primary admin-panel" role="button">Панель администратора</a>
+    {% endif %}
+    <a href="/logout" class="btn btn-success admin-panel" role="button">Выход</a>
+
+  </div>
+
+  <div class="jumbotron custom-jumbotron reg-container-2">
+    <h2>Создание группы доступа</h2>
+    <form id="group-form" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% for f in form.visible_fields %}
+        <div class="form-group {% if f.errors %}has-error{% endif %}" >
+          <label for="{{ f.id_for_label }}">{{ f.label }} </label>
+            {{ f }}
+        </div>
+      {% endfor %}
+        <button id="btn-group-create" type="submit" class="btn btn-primary">Создать группу доступа</button><br>
+        {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+        {% endfor %}
+      {% if error %}
+        <br>
+        <div class="alert alert-danger" role ="alert" id="field-error">{{ error }}</div>
+      {% endif %}
+    </form>
+    <!-- Modal -->
+    <div id="users_dialog" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Выберите пользователей</h4>
+          </div>
+          <div class="modal-body">
+            {% for user in users %}
+              <ul class="list-group list-all-materials" id="{{ collection.id }}">
+                <li class="list-group-item">
+                  <a id="{{ user.id }}" href=""><b>{{ user.username }}<b></a>
+                  <a id="add_user" userid="{{ user.id }}" class="btn btn-success admin-edit control-item"
+                            role="button">Выбрать пользователя</a>
+                </li>
+              </ul>
+            {% endfor %}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+            <button id="save_users" type="button" class="btn btn-primary" data-dismiss="modal">Сохранить</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+{%endblock %}

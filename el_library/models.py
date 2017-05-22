@@ -12,6 +12,14 @@ class Profile(models.Model):
 
 class Tags(models.Model):
     tag = models.CharField(max_length=25)
+    is_deleted = models.IntegerField(default=0)
+
+
+class Access(models.Model):
+    name = models.CharField(max_length=25)
+    access_level = models.IntegerField(default=0)
+    is_deleted = models.IntegerField(default=0)
+    users = models.ManyToManyField(User)
 
 
 class Rubrik(models.Model):

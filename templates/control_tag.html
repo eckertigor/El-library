@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="sort-menu">
+  {% if user.is_superuser %}
+    <a href="/control" class="btn btn-primary admin-panel" role="button">Панель администратора</a>
+  {% endif %}
+  <a href="/logout" class="btn btn-success admin-panel" role="button">Выход</a>
+</div>
+<div class="jumbotron custom-jumbotron my-container">
+	<div class="active">
+      <p>Управление тегом</p>
+  				<ul class="list-group list-all-materials" id="{{ material.id }}">
+  				  <li class="list-group-item">
+  						<a tag="{{ tag.id }}"><b>{{ tag.tag }}<b></a>
+                {% if tag.is_deleted == 0 %}
+                <a id="del_tag" tagid="{{ tag.id }}" class="btn btn-danger admin-edit control-item"
+  											role="button">Удалить</a>
+                {% else %}
+                <a id="restore_tag" tagid="{{ tag.id }}" class="btn btn-warning admin-edit control-item"
+  											role="button">Восстановить</a>
+                {% endif %}
+                <a id="edit_tag" tagid="{{ tag.id }}" class="btn btn-success admin-edit control-item"
+  											role="button">Редактировать</a>
+  				  </li>
+  				</ul>
+	</div>
+</div>
+{%endblock %}

@@ -135,6 +135,69 @@ $(document).ready(function() {
           });
      });
 });
+$(document).ready(function() {
+    $('#btn-group-create').click(function(e) {
+          e.preventDefault();
+          var formData = new FormData($('#group-form')[0]);
+          $.ajax({
+              url: '/control/access/',
+              type: 'POST',
+              data: formData,
+              async: true,
+              success: function (data) {
+                  if(data.hasOwnProperty('error')) {
+                      if( $('#field-error').length ) {
+                          $('#field-error').text(data.error);
+                      } else {
+                          $("#group-form").append('<br><div class="alert alert-danger" \
+                          role ="alert" id="field-error">'+data.error+'</div>');
+                      }
+                  } else if (data.hasOwnProperty('result')) {
+                      $("#group-form").replaceWith( '<div class="alert alert-success" role="alert"> \
+                      '+data.result+'</div><p><a href="/control/access/create/" class="btn btn-primary btn-back" role="button">'+data.button+'</a></p>');
+                  }
+              },
+              error: function (data) {
+                console.log(data)
+              },
+              cache: false,
+              contentType: false,
+              processData: false
+          });
+     });
+});
+
+$(document).on("click", "#del_group", function(e) {
+          e.preventDefault();
+          group_id = $(event.target).attr('tagid');
+          type = $(event.target).attr('type');
+          var request = new FormData();
+          request.append('group_id', group_id);
+          request.append('type', type);
+          $.ajax({
+            url: '/control/access/',
+            type: 'POST',
+            contentType: false,
+            data: request,
+            async: false,
+              success: function (data) {
+                if (data.hasOwnProperty('result')) {
+                  if ($(event.target).attr('type') == "1") {
+                    $(event.target).replaceWith( '<a id="del_group" type="0" tagid="'+group_id+'" class="btn btn-warning admin-edit control-item" role="button">Восстановить</a>');
+                  } else {
+                    $(event.target).replaceWith( '<a id="del_group" type="1" tagid="'+group_id+'" class="btn btn-danger admin-edit control-item" role="button">Удалить</a>');
+                  }
+                }
+              },
+              error: function (data) {
+                console.log(data)
+              },
+              cache: false,
+              contentType: false,
+              processData: false
+          });
+     });
+
 
 $(document).ready(function() {
   var par_arr = {};
@@ -233,6 +296,62 @@ $(document).ready(function() {
   });
 });
 
+$(document).ready(function() {
+  if ($('#group-form').length) {
+    $('.form-group').append('<br><label for="idame">Пользователи, входящие в группу </label> \
+    <input class="form-control" id="users" maxlength="50" name="n" required="true" type="text">');
+  }
+
+});
+
+$(document).ready(function() {
+  $('#users').click(function(e) {
+    e.preventDefault();
+    $('#users_dialog').modal('show');
+  });
+});
+
+var user_id_list = [];
+
+$(document).on("click", "#add_user", function(e){
+   e.preventDefault();
+   var user_id = $(event.target).attr('userid');
+   user_id_list.push(user_id);
+   $(event.target).replaceWith( '<a id="add_to" colid="" \
+   class="btn btn-warning admin-edit control-item" \
+   role="button">Пользователь выбран</a>');
+   var a = $("#users").val();
+   a = a + $("#"+user_id+"").text() + ', ';
+   $("#users").val(a);
+   $('#id_users').val(user_id_list);
+});
+
+$(document).on("click", "#btn_group_create", function(e){
+           e.preventDefault();
+           console.log(user_id_list);
+          //  var user_id = $(event.target).attr('userid');
+          //  request.append('user_id', tag_id);
+          //  request.append('text', text);
+          //  request.append('type', type);
+          //  $.ajax({
+          //      url: '/control/access/create/',
+          //      type: 'POST',
+          //      data: {'material_id' : material_id, 'collection_id': collection_id},
+          //      async: false,
+          //      success: function (data) {
+          //         $('#myModal').modal('toggle');
+          //         $('#add_to_col').replaceWith( '<button id="add_to_col" type="button" \
+          //         class="btn btn-success admin-panel"  \
+          //         data-toggle="modal" data-target="#myModal">Добавлено в коллекцию</button>');
+          //      },
+          //      error: function (data) {
+          //        console.log(data)
+          //      },
+          //      cache: false,
+          //      contentType: false,
+          //      processData: false
+          //  });
+});
 
 $(document).ready(function() {
   $('#id_rubrik').click(function(e) {
@@ -622,6 +741,145 @@ $(document).on("click", "#save_edit", function(e){
               class="btn btn-success admin-edit control-item" \
                       role="button">Редактировать</a> \
           </li>');
+      },
+      error: function (data) {
+        console.log('error');
+      },
+      cache: false,
+      processData: false
+  });
+});
+
+$(document).on("click", "#edit_tag", function(e){
+    e.preventDefault();
+    var tag_id = $(event.target).attr('tagid');
+    var text = $("a[tag="+tag_id+"]").text();
+    if ($('#del_tag').length) {
+      $(".list-group-item").replaceWith('<li \
+          class="list-group-item list-rubrik"> <input class="form-control rubrik-edit" id="tag_title" \
+          maxlength="50" tagid="'+tag_id+'" name="title" required="true" type="text" \
+            value="'+text+'"> \
+            <a id="del_tag" tagid="'+tag_id+'" \
+            class="btn btn-danger admin-edit control-item-rub" \
+            role="button">Удалить</a> \
+            <a id="save_tag" tagid="'+tag_id+'" \
+            class="btn btn-primary admin-edit control-item-rub" \
+                    role="button">Сохранить</a></li> ');
+    } else {
+      $(".list-group-item").replaceWith('<li \
+          class="list-group-item list-rubrik"> <input class="form-control rubrik-edit" id="tag_title" \
+          maxlength="50" tagid="'+tag_id+'" name="title" required="true" type="text" \
+            value="'+text+'"> \
+            <a id="restore_tag" tagid="'+tag_id+'" \
+            class="btn btn-warning admin-edit control-item-rub" \
+            role="button">Восстановить</a> \
+            <a id="save_tag" tagid="'+tag_id+'" \
+            class="btn btn-primary admin-edit control-item-rub" \
+                    role="button">Сохранить</a></li> ');
+    }
+});
+
+$(document).on("click", "#save_tag", function(e){
+  e.preventDefault();
+  var tag_id = $(event.target).attr('tagid');
+  var text = $("input").val();
+  var type = "save";
+  var request = new FormData();
+  request.append('tag_id', tag_id);
+  request.append('text', text);
+  request.append('type', type);
+  $.ajax({
+      url: '/control/tags/',
+      type: 'POST',
+      contentType: false,
+      data: request,
+      async: false,
+      success: function (data) {
+        if ($('#del_tag').length) {
+          $(".list-group-item.list-rubrik").replaceWith('<li  \
+              class="list-group-item"> <a tag="'+tag_id+'" href=""><b>'+text+'<b></a> \
+                <a id="del_tag" tagid="'+tag_id+'" \
+                class="btn btn-danger admin-edit control-item" \
+                role="button">Удалить</a> \
+                <a id="edit_tag" tagid="'+tag_id+'" \
+                class="btn btn-success admin-edit control-item" \
+                        role="button">Редактировать</a> \
+            </li>');
+        } else {
+          $(".list-group-item.list-rubrik").replaceWith('<li  \
+              class="list-group-item"> <a tag="'+tag_id+'" href=""><b>'+text+'<b></a> \
+                <a id="restore_tag" tagid="'+tag_id+'" \
+                class="btn btn-warning admin-edit control-item" \
+                role="button">Восстановить</a> \
+                <a id="edit_tag" tagid="'+tag_id+'" \
+                class="btn btn-success admin-edit control-item" \
+                        role="button">Редактировать</a> \
+            </li>');
+        }
+      },
+      error: function (data) {
+        console.log('error');
+      },
+      cache: false,
+      processData: false
+  });
+});
+
+$(document).on("click", "#del_tag", function(e){
+  e.preventDefault();
+  var tag_id = $(event.target).attr('tagid');
+  var type = "del";
+  var request = new FormData();
+  request.append('tag_id', tag_id);
+  request.append('type', type);
+  $.ajax({
+      url: '/control/tags/',
+      type: 'POST',
+      contentType: false,
+      data: request,
+      async: false,
+      success: function (data) {
+        if ($('#edit_tag').length) {
+          $(event.target).replaceWith('<a id="restore_tag" tagid="'+tag_id+'" \
+                class="btn btn-warning admin-edit control-item" \
+                role="button">Восстановить</a>');
+        } else {
+          $(event.target).replaceWith('<a id="restore_tag" tagid="'+tag_id+'" \
+                class="btn btn-warning admin-edit control-item-rub" \
+                role="button">Восстановить</a>');
+        }
+      },
+      error: function (data) {
+        console.log('error');
+      },
+      cache: false,
+      processData: false
+  });
+});
+
+$(document).on("click", "#restore_tag", function(e){
+  e.preventDefault();
+  var tag_id = $(event.target).attr('tagid');
+  var type = "restore";
+  var request = new FormData();
+  request.append('tag_id', tag_id);
+  request.append('type', type);
+  $.ajax({
+      url: '/control/tags/',
+      type: 'POST',
+      contentType: false,
+      data: request,
+      async: false,
+      success: function (data) {
+        if ($('#edit_tag').length) {
+          $(event.target).replaceWith('<a id="del_tag" tagid="'+tag_id+'" \
+                class="btn btn-danger admin-edit control-item" \
+                role="button">Удалить</a>');
+        } else {
+          $(event.target).replaceWith('<a id="del_tag" tagid="'+tag_id+'" \
+                class="btn btn-danger admin-edit control-item-rub" \
+                role="button">Удалить</a>');
+        }
       },
       error: function (data) {
         console.log('error');

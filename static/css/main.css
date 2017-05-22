@@ -182,6 +182,20 @@
   margin-top: 15px !important;
 }
 
+.panel-lk-tag {
+  width: 19%;
+  display: inline-block;
+  padding-top: 5px!important;
+  background-color: #337ab7;
+  text-align: center;
+  font-family: 'Roboto Black', sans-serif;
+  font-size: 17px;
+  word-wrap:break-word;
+  padding-top: 5px !important;
+  padding-bottom: 5px !important;
+  margin-top: 15px !important;
+}
+
 .admin-panel {
   float : right;
   margin-left: 10px;

@@ -1,7 +1,7 @@
 # -*- coding: utf-8
 from django.shortcuts import render
-from el_library.forms import UserForm, LoginForm, MaterialForm, CollectionForm
-from el_library.models import Profile, Material, Tags, Rubrik, Collection
+from el_library.forms import UserForm, LoginForm, MaterialForm, CollectionForm, AccessForm
+from el_library.models import Profile, Material, Tags, Rubrik, Collection, Access
 from django.contrib import auth
 from django.core import serializers
 from django.contrib.auth.models import User
@@ -29,7 +29,15 @@ def material(request, material_id):
 
 def my(request):
     if request.user.is_authenticated():
-        materials = Material.objects.filter(user=request.user)
+        materials = Material.objects.filter(user=request.user).order_by('title')
+        return render(request, 'my.html', {'materials': materials})
+    else:
+        return redirect('/login/')
+
+
+def control_materials_edit(request):
+    if request.user.is_superuser:
+        materials = Material.objects.all().order_by('title')
         return render(request, 'my.html', {'materials': materials})
     else:
         return redirect('/login/')
@@ -59,8 +67,40 @@ def del_from_collection(request, material_id, collection_id):
 def collections(request):
     if request.user.is_authenticated():
         if request.method == 'GET':
-            collections = Collection.objects.filter(user=request.user)
+            collections = Collection.objects.filter(user=request.user).order_by('title')
             return render(request, 'collections.html', {'collections': collections})
+    else:
+        return redirect('/login/')
+
+
+def control_access_create(request):
+    if request.user.is_superuser:
+        if request.method == 'GET':
+            form = AccessForm()
+            users = User.objects.all()
+            return render(request, 'create_group.html', {'form': form, 'users': users})
+        if request.method == 'POST':
+            response_data = {}
+            existing_users = []
+            form = AccessForm(request.POST)
+            if form.is_valid():
+                group_name = form.cleaned_data.get('name')
+                users = form.cleaned_data.get('users').split(',')
+                if Access.objects.filter(name=group_name).exists():
+                    response_data['error'] = u'Группа с таким названием уже существует'
+                    return JsonResponse(response_data)
+                for user_id in users:
+                    existing_users.append(User.objects.get(id=user_id))
+                access = Access.objects.create(name=group_name)
+                # access.users.add(*existing_users)
+                access.save()
+                response_data['result'] = u'Группа успешно создана'
+                response_data['button'] = u'Вернуться к списку групп доступа?'
+                return JsonResponse(response_data)
+            else:
+                # response_data['error'] = u'Проверьте введенные данные'
+                response_data['error'] = form.errors
+                return JsonResponse(response_data)
     else:
         return redirect('/login/')
 
@@ -68,12 +108,22 @@ def collections(request):
 def collection(request, collection_id):
     try:
         collection = Collection.objects.get(id=collection_id)
+        collection.materials.order_by('title')
     except Collection.DoesNotExist:
         return redirect('/collections/')
     if collection.user == request.user:
         return render(request, 'collection.html', {'collection': collection})
     else:
         return redirect('/collections/')
+
+
+def control_access_view(request, group_id):
+    try:
+        access = Access.objects.get(id=group_id)
+    except Collection.DoesNotExist:
+        return redirect('/control/access/')
+    users = access.users.all()
+    return render(request, 'access_view.html', {'access': access, 'users': users})
 
 
 def create_collection(request):
@@ -129,16 +179,19 @@ def signup(request):
         return render(request, 'signup.html', {'form': form})
 
 
-def search(request, type_r, query):
-    rubrik = Rubrik.objects.get(id=query)
-    materials = Material.objects.filter(rubrik=rubrik.id)
-    return render(request, 'search.html', {'materials': materials, 'query': query})
+def search(request, query):
+    rubrik = Rubrik.objects.get(name=query)
+    materials = Material.objects.filter(rubrik=rubrik)
+    # response_data['error'] = rubrik
+    # response_data['material'] = material
+    # return JsonResponse(response_data)
+    return render(request, 'search.html', {'materials': materials})
 
 
 def tags(request):
     if request.method == 'GET':
         response_data = {}
-        data = Tags.objects.only('tag').all()
+        data = Tags.objects.only('tag').filter(is_deleted=0)
         response_data = serializers.serialize('json', data)
         return HttpResponse(response_data, content_type='application/json')
 
@@ -259,6 +312,9 @@ def login(request):
             return JsonResponse(response_data)
         user = auth.authenticate(username=userByEmail.username, password=password)
         if user is not None:
+            if user.is_active is False:
+                response_data['error'] = u'Пользователь заблокирован'
+                return JsonResponse(response_data)
             auth.login(request, user)
             # profile = Profile.objects.get(nickname=userByEmail.username)
             # response_data['avatar'] = profile.avatar.name[2:]
@@ -284,8 +340,8 @@ def add_material(request):
             response_data['button'] = u'Вернуться в панель управления?'
             return JsonResponse(response_data)
         else:
-            response_data['error'] = materialForm.errors
-            # response_data['error'] = u'Проверьте правильность введенных данных'
+            # response_data['error'] = materialForm.errors
+            response_data['error'] = u'Проверьте правильность введенных данных'
             return JsonResponse(response_data)
     else:
         form = MaterialForm()
@@ -309,7 +365,7 @@ def control(request):
 def control_materials(request):
     if request.user.is_superuser:
         try:
-            materials = Material.objects.all()
+            materials = Material.objects.all().order_by('title')
         except Materil.DoesNotExist:
             materials = {}
         return render(request, 'control_materials.html', {'materials': materials})
@@ -337,14 +393,14 @@ def control_users(request):
             response_data['result'] = 'success'
             return JsonResponse(response_data)
         elif request.method == 'GET':
-            users = User.objects.all()
+            users = User.objects.all().order_by('id')
             return render(request, 'control_users.html', {'users':users})
 
 
 def control_rubrik(request):
     if request.user.is_superuser:
         if request.method == 'GET':
-            rubriks = Rubrik.objects.all()
+            rubriks = Rubrik.objects.all().order_by('id')
             return render(request, 'control_rubrik.html', {'rubriks': rubriks})
         elif request.method == 'POST':
             response_data = {}
@@ -354,6 +410,53 @@ def control_rubrik(request):
             rubrik.save()
             response_data['result'] = 'success'
             return JsonResponse(response_data)
+
+
+def control_access(request):
+    if request.user.is_superuser:
+        if request.method == 'GET':
+            access = Access.objects.all().order_by('id')
+            return render(request, 'control_access.html', {'access': access})
+        elif request.method == 'POST':
+            response_data = {}
+            group_id = int(request.POST['group_id'])
+            type_g = int(request.POST['type'])
+            access = Access.objects.get(id=group_id)
+            access.is_deleted = type_g
+            access.save()
+            response_data['result'] = 'success'
+            return JsonResponse(response_data)
+
+
+def control_tags(request):
+    if request.user.is_superuser:
+        if request.method == 'GET':
+            tags = Tags.objects.all().order_by('tag')
+            return render(request, 'control_tags.html', {'tags': tags})
+        elif request.method == 'POST':
+            response_data = {}
+            tag_id = int(request.POST['tag_id'])
+            type_r = request.POST['type']
+            tag = Tags.objects.get(id=tag_id)
+            if type_r == 'save':
+                text = request.POST['text']
+                tag.tag = text
+            elif type_r == 'del':
+                tag.is_deleted = 1
+            elif type_r == 'restore':
+                tag.is_deleted = 0
+            else:
+                response_data['error'] = 'wrong'
+            tag.save()
+            response_data['result'] = 'success'
+            return JsonResponse(response_data)
+
+
+def control_tag(request, tag_id):
+    if request.user.is_superuser:
+        if request.method == 'GET':
+            tag = Tags.objects.get(pk=tag_id)
+            return render(request, 'control_tag.html', {'tag': tag})
 
 
 def control_rubrik_edit(request):

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="sort-menu">
+  {% if user.is_superuser %}
+    <a href="/control" class="btn btn-primary admin-panel" role="button">Панель администратора</a>
+  {% endif %}
+  <a href="/logout" class="btn btn-success admin-panel" role="button">Выход</a>
+</div>
+<div class="jumbotron custom-jumbotron my-container">
+	<div class="active">
+      <p>Управление группами доступа</p>
+        <a href="{% url 'control_access_create' %}" class="btn btn-success not-reg" role="button">Создать группу доступа</a><br><br>
+      {% for user in users %}
+  				<ul class="list-group list-all-materials">
+  				  <li class="list-group-item">
+  						<a href="{{ group.id }}" tag="{{ group.id }}"><b>{{ user.username }}<b></a>
+
+                <!-- <a id="edit_group" tagid="{{ tag.id }}" class="btn btn-success admin-edit control-item"
+  											role="button">Редактировать</a> -->
+  				  </li>
+  				</ul>
+      {% endfor %}
+	</div>
+</div>
+{%endblock %}
