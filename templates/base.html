@@ -30,7 +30,7 @@
         <div class="collapse navbar-collapse item-custom-nav">
           <ul class="nav navbar-nav navbar-custom">
             <li class="item-custom"><a class="item roboto-font" href="{% url 'catalog' %}">Каталог</a></li>
-            <li class="item-custom"><a class="item roboto-font" href="/">Поиск</a></li>
+            <li class="item-custom"><a class="item roboto-font" href="{% url 'search_form' %}">Поиск</a></li>
             <li class="item-custom"><a class="item roboto-font" href="{% url 'index' %}">Популярные</a></li>
             <li class="item-custom"><a class="item roboto-font  add-material" href="{% url 'add_material' %}">Добавление материала</a></li>
             {% if user.is_authenticated %}

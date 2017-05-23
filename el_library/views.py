@@ -11,8 +11,13 @@ from django.contrib.auth.decorators import login_required
 
 
 def index(request):
-    materials = Material.objects.all()
+    materials = Material.objects.all().order_by('title')
     return render(request, 'index.html', {'materials': materials})
+
+
+def date(request):
+    materials = Material.objects.all().order_by('-id')
+    return render(request, 'date.html', {'materials': materials})
 
 
 def material(request, material_id):
@@ -21,10 +26,16 @@ def material(request, material_id):
     except Material.DoesNotExist:
         raise Http404
     if request.user.is_authenticated():
-        collections = Collection.objects.filter(user=request.user)
-        return render(request, 'material.html', {'material': material,
-                                            'collections': collections})
-    return render(request, 'material.html', {'material': material})
+        if material.group is None or request.user.is_superuser or request.user in material.group.all():
+            collections = Collection.objects.filter(user=request.user)
+            return render(request, 'material.html', {'material': material,
+                                                'collections': collections})
+        else:
+            return render(request, 'denied.html')
+    if material.group is None:
+        return render(request, 'material.html', {'material': material})
+    else:
+        return render(request, 'denied.html')
 
 
 def my(request):
@@ -90,9 +101,9 @@ def control_access_create(request):
                     response_data['error'] = u'Группа с таким названием уже существует'
                     return JsonResponse(response_data)
                 for user_id in users:
-                    existing_users.append(User.objects.get(id=user_id))
+                    existing_users.append(User.objects.get(id=int(user_id)))
                 access = Access.objects.create(name=group_name)
-                # access.users.add(*existing_users)
+                access.users.add(*existing_users)
                 access.save()
                 response_data['result'] = u'Группа успешно создана'
                 response_data['button'] = u'Вернуться к списку групп доступа?'
@@ -181,7 +192,28 @@ def signup(request):
 
 def search(request, query):
     rubrik = Rubrik.objects.get(name=query)
-    materials = Material.objects.filter(rubrik=rubrik)
+    materials = Material.objects.filter(rubrik=rubrik).order_by('title')
+    # response_data['error'] = rubrik
+    # response_data['material'] = material
+    # return JsonResponse(response_data)
+    return render(request, 'search.html', {'materials': materials, 'error': u'В этой рубрике пока нет материалов'})
+
+
+def search_form(request):
+    return render(request, 'search_form.html')
+
+
+def search_tag(request, query):
+    tag = Tags.objects.get(tag=query)
+    materials = Material.objects.filter(tags=tag).order_by('title')
+    # response_data['error'] = rubrik
+    # response_data['material'] = material
+    # return JsonResponse(response_data)
+    return render(request, 'search.html', {'materials': materials, 'error': u'По данному тегу ничего не найдено'})
+
+
+def search_title(request, query):
+    materials = Material.objects.filter(title__icontains=query).order_by('title')
     # response_data['error'] = rubrik
     # response_data['material'] = material
     # return JsonResponse(response_data)
@@ -248,11 +280,16 @@ def edit_material(request, material_id):
                     isbn = 0
                 else:
                     isbn = materialForm.cleaned_data.get('isbn_hidden')
+                if materialForm.cleaned_data.get('group') != '':
+                    group_id = Access.objects.get(id=int(materialForm.cleaned_data.get('group')))
+                else:
+                    group_id = None
                 material.title = materialForm.cleaned_data.get('title')
                 material.author = materialForm.cleaned_data.get('author')
                 material.type_material = materialForm.cleaned_data.get('types')
                 material.description = materialForm.cleaned_data.get('description')
                 material.document = materialForm.cleaned_data.get('document')
+                material.group = group_id
                 material.isbn = isbn
                 material.rubrik_id = rubrik.id
                 material.user = request.user
@@ -292,8 +329,10 @@ def edit_material(request, material_id):
                  'rubrik': material.rubrik.name, 'isbn': isbn_state,  'document': material.document,
                  'tags': tags, 'isbn_hidden': material.isbn, 'rubrik_parent': material.rubrik.parent_id,
                  })
+            if request.user.is_superuser:
+                groups = Access.objects.all()
             return render(request, 'edit.html',
-                            { 'form': form, 'material': material })
+                            { 'form': form, 'material': material, 'groups': groups })
     else:
         return redirect('/material/'+str(material.id))
 
@@ -329,23 +368,27 @@ def login(request):
         return render(request, 'login.html', {'form': form})
 
 
-@login_required
 def add_material(request):
-    if request.method == 'POST':
-        response_data = {}
-        materialForm = MaterialForm(request.POST, request.FILES)
-        if materialForm.is_valid():
-            materialForm.save_material(request)
-            response_data['result'] = u'Материал успешно добавлен!'
-            response_data['button'] = u'Вернуться в панель управления?'
-            return JsonResponse(response_data)
+    if request.user.is_authenticated():
+        if request.method == 'POST':
+            response_data = {}
+            materialForm = MaterialForm(request.POST, request.FILES)
+            if materialForm.is_valid():
+                materialForm.save_material(request)
+                response_data['result'] = u'Материал успешно добавлен!'
+                response_data['button'] = u'Вернуться в панель управления?'
+                return JsonResponse(response_data)
+            else:
+                # response_data['error'] = materialForm.errors
+                response_data['error'] = u'Проверьте правильность введенных данных'
+                return JsonResponse(response_data)
         else:
-            # response_data['error'] = materialForm.errors
-            response_data['error'] = u'Проверьте правильность введенных данных'
-            return JsonResponse(response_data)
+            form = MaterialForm()
+            if request.user.is_superuser:
+                groups = Access.objects.all()
+            return render(request, 'add.html', {'form': form, 'groups': groups})
     else:
-        form = MaterialForm()
-        return render(request, 'add.html', {'form': form})
+        return redirect('/login')
 
 
 def lk(request):

@@ -21,6 +21,36 @@
     {% endfor %}
     {{ form.errors }}
 {{ form.non_field_errors }}
+    {% if user.is_superuser %}
+    <div id="add_form_add_group" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Выберите группу</h4>
+          </div>
+          <div class="modal-body">
+            {% for group in groups %}
+              <ul class="list-group list-all-materials" id="{{ group.id }}">
+                <li class="list-group-item">
+                  <a gr="{{ group.id }}"  href=""><b>{{ group.name }}<b></a>
+                  <a id="add_group_to_material" groupid="{{ group.id }}" class="btn btn-success admin-edit control-item"
+                            role="button">Выбрать группу</a>
+                </li>
+              </ul>
+            {% endfor %}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+            <button id="save_group_ch" type="button" class="btn btn-primary" data-dismiss="modal">Сохранить</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    {% endif %}
     <div class="modal fade" id="rubrik_dialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
       <div class="modal-dialog" role="document">
         <div class="modal-content">

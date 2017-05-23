@@ -46,14 +46,26 @@ $(document).ready(function() {
       contentType: false,
       processData: false
   });
-  console.log(tagsList);
+  // console.log(tagsList);
   $("#id_tags").tagit({
     availableTags: tagsList
     });
+
+  $("#search_tags").tagit({
+    availableTags: tagsList,
+    tagLimit: 1,
+    singleField: true
+    });
+
   });
 
   $(document).ready(function() {
     $('#id_tags').removeAttr('required');
+  });
+
+
+  $(document).ready(function() {
+    $('#search_tags').removeAttr('required');
   });
 
 $(document).ready(function() {
@@ -135,12 +147,36 @@ $(document).ready(function() {
           });
      });
 });
+
+
+$(document).ready(function() {
+  if ($('#add-form').length) {
+    $('#film-add').before('<br><label for="idame">Группа доступа</label> \
+    <input class="form-control" value="" id="groups" maxlength="50" name="n" type="text"><br>');
+  }
+});
+
+$(document).ready(function() {
+  if ($('#material-edit-form').length) {
+    $('#material-edit').before('<br><label for="idame">Группа доступа</label> \
+    <input class="form-control" id="groups" value="" maxlength="50" name="n" type="text"><br>');
+  }
+});
+
+$(document).ready(function() {
+  $('#groups').click(function(e) {
+    e.preventDefault();
+    $('#add_form_add_group').modal('show');
+  });
+});
+
+
 $(document).ready(function() {
     $('#btn-group-create').click(function(e) {
           e.preventDefault();
           var formData = new FormData($('#group-form')[0]);
           $.ajax({
-              url: '/control/access/',
+              url: '/control/access/create/',
               type: 'POST',
               data: formData,
               async: true,
@@ -154,7 +190,7 @@ $(document).ready(function() {
                       }
                   } else if (data.hasOwnProperty('result')) {
                       $("#group-form").replaceWith( '<div class="alert alert-success" role="alert"> \
-                      '+data.result+'</div><p><a href="/control/access/create/" class="btn btn-primary btn-back" role="button">'+data.button+'</a></p>');
+                      '+data.result+'</div><p><a href="/control/access/" class="btn btn-primary btn-back" role="button">'+data.button+'</a></p>');
                   }
               },
               error: function (data) {
@@ -291,8 +327,23 @@ $(document).ready(function() {
   $('#show_cat').click(function(e) {
     var nodeId;
     var rubrik = $('#tree').treeview('getSelected', nodeId)[0].text;
-    window.location.href = 'http://localhost/search/rubrik/'+rubrik+'';
+    window.location.href = 'http://localhost/search/'+rubrik+'';
 
+  });
+});
+
+$(document).ready(function() {
+  $('#btn-find').click(function(e) {
+    e.preventDefault();
+
+    var title = $('#title').val()
+    var tag = $('span.tagit-label').text()
+    if (title != '') {
+      window.location.href = 'http://localhost/searchtitle/'+title+'';
+    }
+    if (tag != '') {
+      window.location.href = 'http://localhost/searchtag/'+tag+'';
+    }
   });
 });
 
@@ -324,6 +375,15 @@ $(document).on("click", "#add_user", function(e){
    a = a + $("#"+user_id+"").text() + ', ';
    $("#users").val(a);
    $('#id_users').val(user_id_list);
+});
+
+$(document).on("click", "#add_group_to_material", function(e){
+   e.preventDefault();
+   var group_id = $(event.target).attr('groupid');
+   var group = $("a[gr="+group_id+"]").text();
+   $('#add_form_add_group').modal('toggle');
+   $("#groups").val(group);
+   $('#id_group').val(group_id);
 });
 
 $(document).on("click", "#btn_group_create", function(e){
@@ -568,39 +628,40 @@ $(document).on("submit","#collection-form", function (e) {
      });
 
 
-$(document).on("submit","#add-form", function (e) {
-          e.preventDefault();
-          $('#id_isbn_hidden').val($('#isbn').val());
-          var formData = new FormData($('#add-form')[0]);
-          $.ajax({
-              url: '/control/add/',
-              type: 'POST',
-              data: formData,
-              async: true,
-              success: function (data) {
-                  if(data.hasOwnProperty('error')) {
-                      if( $('#field-error').length ) {
-                          $('#field-error').text(data.error);
-                      } else {
-                          $("#add-form").append('<br><div class="alert alert-danger" \
-                          role ="alert" id="field-error">'+data.error+'</div>');
-                      }
-                      console.log(data.error);
-
-                  } else if (data.hasOwnProperty('result')) {
-                      $("#add-form").replaceWith( '<div class="alert alert-success" role="alert"> \
-                      '+data.result+'</div><p><a href="/control/" class="btn btn-primary btn-back" role="button">'+data.button+'</a></p>');
-                  }
-              },
-              error: function (data) {
-                console.log(data)
-              },
-              cache: false,
-              contentType: false,
-              processData: false
-          });
-     });
-
+// $(document).on("submit","#add-form", function (e) {
+//           e.preventDefault();
+//           e.stopImmediatePropagation();
+//           $('#id_isbn_hidden').val($('#isbn').val());
+//           var formData = new FormData($('#add-form')[0]);
+//           $.ajax({
+//               url: '/control/add/',
+//               type: 'POST',
+//               data: formData,
+//               async: true,
+//               success: function (data) {
+//                   if(data.hasOwnProperty('error')) {
+//                       if( $('#field-error').length ) {
+//                           $('#field-error').text(data.error);
+//                       } else {
+//                           $("#add-form").append('<br><div class="alert alert-danger" \
+//                           role ="alert" id="field-error">'+data.error+'</div>');
+//                       }
+//                       console.log(data.error);
+//
+//                   } else if (data.hasOwnProperty('result')) {
+//                       $("#add-form").replaceWith( '<div class="alert alert-success" role="alert"> \
+//                       '+data.result+'</div><p><a href="/control/" class="btn btn-primary btn-back" role="button">'+data.button+'</a></p>');
+//                   }
+//               },
+//               error: function (data) {
+//                 console.log(data)
+//               },
+//               cache: false,
+//               contentType: false,
+//               processData: false
+//           });
+//      });
+//
 $(document).on("submit","#material-edit-form", function (e) {
           e.preventDefault();
           $('#id_isbn_hidden').val($('#isbn').val());

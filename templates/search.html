@@ -1,17 +1,22 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="jumbotron custom-jumbotron">
+<div class="jumbotron custom-jumbotron-materials">
   <!-- <h1>Рекомендованые материалы</h1> -->
+  {% if materials %}
    {% for material in materials %}
      <div class="panel panel-default">
        <div class="panel-body">
          <a href="/material/{{ material.id }}" class="title-link">
-           <h4>{{ material.title }}  {% for tag in material.tags.all %} {{ tag.tag }} {% endfor %}</h4>
+           <h4>{{ material.title }} </h4>
          </a>
        </div>
      </div>
    {% endfor %}
+  {% else %}
+    <div class="alert alert-success" role ="alert" id="field-error">
+    {{ error }}</div>
+  {% endif %}
 </div>
 
 {%endblock %}

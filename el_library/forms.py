@@ -86,6 +86,7 @@ class MaterialForm(forms.Form):
 		widget=forms.TextInput(attrs={'class': 'form-control', 'required': 'true', 'maxlength': 100})
 	)
 	rubrik_parent = forms.CharField(widget=forms.HiddenInput())
+	group = forms.CharField(required = False, widget=forms.HiddenInput())
 	isbn_choise = (
 		('yes', 'Есть'),
 		('no', 'Нет'),

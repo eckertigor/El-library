@@ -51,6 +51,7 @@ class Material(models.Model):
     is_approved = models.IntegerField(default=0)
     is_app_changed = models.IntegerField(default=0)
     is_deleted = models.IntegerField(default=0)
+    group = models.ForeignKey(Access, null=True)
 
 
 class Collection(models.Model):
