@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 
 
 def index(request):
-    materials = Material.objects.all().order_by('title')
+    materials = Material.objects.all().filter(is_approved=1).order_by('title')
     return render(request, 'index.html', {'materials': materials})
 
 
@@ -386,7 +386,9 @@ def add_material(request):
             form = MaterialForm()
             if request.user.is_superuser:
                 groups = Access.objects.all()
-            return render(request, 'add.html', {'form': form, 'groups': groups})
+                return render(request, 'add.html', {'form': form, 'groups': groups})
+            return render(request, 'add.html', {'form': form})
+
     else:
         return redirect('/login')
 

@@ -85,7 +85,7 @@ class MaterialForm(forms.Form):
 		required=True, label=u'Рубрика',
 		widget=forms.TextInput(attrs={'class': 'form-control', 'required': 'true', 'maxlength': 100})
 	)
-	rubrik_parent = forms.CharField(widget=forms.HiddenInput())
+	rubrik_parent = forms.CharField(required = False, widget=forms.HiddenInput())
 	group = forms.CharField(required = False, widget=forms.HiddenInput())
 	isbn_choise = (
 		('yes', 'Есть'),
@@ -112,6 +112,8 @@ class MaterialForm(forms.Form):
 		tags_list = self.cleaned_data.get('tags').split(',')
 		rubrik_name = self.cleaned_data.get('rubrik')
 		rubrik_parent = self.cleaned_data.get('rubrik_parent')
+		if rubrik_parent == '':
+			rubrik_parent = 0
 		try:
 			rubrik = Rubrik.objects.get(name=rubrik_name)
 		except Rubrik.DoesNotExist:

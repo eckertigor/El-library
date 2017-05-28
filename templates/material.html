@@ -33,11 +33,11 @@
 							{% endif %}
 							<h4>{{ material.title }} </h4>
               <b>Автор</b><h4>
-                <a href="/search/autor/{{ material.author }}" class="title-link"> {{ material.author }}</a></h4>
+                <a  class="title-link"> {{ material.author }}</a></h4>
 							<b>Тип материала</b> <h4>{{ material.get_type_material_display }} </h4>
 							<b>Рубрика</b>
 							<h4>
-								<a href="/search/rubrik/{{ material.rubrik.id }}" class="title-link">
+								<a href="/search/{{ material.rubrik.name }}" class="title-link">
 									{{ material.rubrik.name }}
 							 	</a>
 							</h4>
@@ -46,10 +46,13 @@
 							{% endif %}
               <b>Теги</b>
                  <h4> {% for tag in material.tags.all %}
-                    <a href="/tag/{{ tag.tag }}" class="title-link"> {{ tag.tag }}</a>
+                    <a href="/searchtag/{{ tag.tag }}" class="title-link"> {{ tag.tag }}</a>
                       {% endfor %}
                 </h4>
 							<b>Описание</b> <h4>{{ material.description }} </h4>
+							<b>Документ</b> <h4>{{ material.document.name|slice:"2:" }} </h4>
+							<a href="{{ material.document.url }}" class="btn btn-success"
+												role="button" download>Скачать</a>
 							<!-- Modal -->
 							<div id="myModal" class="modal fade" role="dialog">
 							  <div class="modal-dialog">
@@ -80,8 +83,7 @@
 
 							  </div>
 							</div>
-           <span id="avgrat"> {{ film.rating }} </span> <img class="star-rating-page"
-                    src="/uploads/star.png"></p>
+
 				  </div>
 				</div>
  </div>

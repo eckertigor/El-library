@@ -150,7 +150,7 @@ $(document).ready(function() {
 
 
 $(document).ready(function() {
-  if ($('#add-form').length) {
+  if ($('#add_form_add_group').length) {
     $('#film-add').before('<br><label for="idame">Группа доступа</label> \
     <input class="form-control" value="" id="groups" maxlength="50" name="n" type="text"><br>');
   }
