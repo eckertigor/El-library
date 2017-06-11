@@ -16,7 +16,7 @@ def index(request):
 
 
 def date(request):
-    materials = Material.objects.all().order_by('-id')
+    materials = Material.objects.all().filter(is_approved=1).order_by('-id')
     return render(request, 'date.html', {'materials': materials})
 
 
